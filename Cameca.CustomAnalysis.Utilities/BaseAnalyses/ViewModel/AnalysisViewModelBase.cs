@@ -11,6 +11,7 @@ public abstract class AnalysisViewModelBase<TNode> : CoreViewModelBase<IAnalysis
 
 	internal override void OnCreatedCore(ViewModelCreatedEventArgs eventArgs)
 	{
+		base.OnCreatedCore(eventArgs);
 		Node = Services.InstanceProvider.Resolve(eventArgs.NodeId) as TNode;
 	}
 }

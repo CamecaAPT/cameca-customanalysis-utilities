@@ -13,6 +13,7 @@ public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServi
 	
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
+		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeSaveInterceptorProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
 			saveInterceptor.SaveInterceptor = OnSave;

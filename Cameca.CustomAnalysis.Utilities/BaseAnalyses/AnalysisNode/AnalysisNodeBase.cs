@@ -29,11 +29,13 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	internal override void OnAfterCreatedCore(NodeAfterCreatedEventArgs eventArgs)
 	{
+		base.OnAfterCreatedCore(eventArgs);
 		RequestDisplayViews();
 	}
 
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
+		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeSaveInterceptorProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
 			saveInterceptor.SaveInterceptor = OnSave;
