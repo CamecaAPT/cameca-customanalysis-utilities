@@ -27,7 +27,7 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 		_defaultViews = new(GetDefaultViews);
 	}
 
-	protected sealed override void OnAfterCreated(NodeAfterCreatedEventArgs eventArgs)
+	internal override void OnAfterCreatedCore(NodeAfterCreatedEventArgs eventArgs)
 	{
 		RequestDisplayViews();
 	}
