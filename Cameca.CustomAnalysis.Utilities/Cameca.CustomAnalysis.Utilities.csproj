@@ -23,7 +23,7 @@
 		<PackageProjectUrl></PackageProjectUrl>
 		<RepositoryUrl>https://github.com/CamecaAPT/cameca-customanalysis-utilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageLicenseFile>C:\workspace\external\cameca-customanalysis-utilities\LICENSE</PackageLicenseFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
 
 	<ItemGroup>
