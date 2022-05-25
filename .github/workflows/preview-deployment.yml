@@ -59,10 +59,16 @@ jobs:
           --no-restore
           --configuration $env:BUILD_CONFIGURATION
           /p:Version=$env:GitVersion_SemVer
+          --nologo
       
       # Test (if present)
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: >
+          dotnet test
+          --no-build
+          --configuration $env:BUILD_CONFIGURATION
+          --verbosity normal
+          --nologo
       
       # Create the preview package
       - name: Pack
