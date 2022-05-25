@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using Cameca.CustomAnalysis.Interface;
 
@@ -10,22 +11,29 @@ public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServi
 {
 	protected INodeDataState? DataState;
 
+	protected virtual IEnumerable<IMenuItem> ContextMenuItems => Enumerable.Empty<IMenuItem>();
+
 	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
-	
+
+
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
-		if (Services.NodeSaveInterceptorProvider.Resolve(InstanceId) is { } saveInterceptor)
+		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
-			saveInterceptor.SaveInterceptor = OnSave;
-			saveInterceptor.SavePreviewInterceptor = OnPreviewSave;
+			saveInterceptor.SaveDelegate = OnSave;
+			saveInterceptor.SavePreviewDelegate = OnPreviewSave;
 		}
 		DataState = Services.DataStateProvider.Resolve(InstanceId);
 		if (DataState is not null)
 		{
 			DataState.PropertyChanged += DataStateOnPropertyChangedRouter;
 		}
-		if (Services.DataFilterInterceptorProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+		if (Services.MenuFactoryProvider.Resolve(InstanceId) is { } menuFactory)
+		{
+			menuFactory.ContextMenuItems = ContextMenuItems;
+		}
+		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegate;
 			dataFilterInterceptor.IsInverted = IsInverted;

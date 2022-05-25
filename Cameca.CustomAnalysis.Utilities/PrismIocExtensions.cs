@@ -6,6 +6,7 @@ public static class PrismIocExtensions
 {
 	public static void RegisterCoreServices(this IContainerRegistry containerRegistry)
 	{
+		containerRegistry.Register<ICoreServices, CoreServices>();
 		containerRegistry.Register<ICoreNodeServices, CoreNodeServices>();
 		containerRegistry.Register<IAnalysisNodeBaseServices, AnalysisNodeBaseServices>();
 		containerRegistry.Register<IDataFilterNodeBaseServices, DataFilterNodeBaseServices>();

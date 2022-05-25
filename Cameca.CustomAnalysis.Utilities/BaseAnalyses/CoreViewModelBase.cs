@@ -6,7 +6,7 @@ using Prism.Mvvm;
 namespace Cameca.CustomAnalysis.Utilities;
 
 public abstract class CoreViewModelBase<TServices> : BindableBase, IDisposable
-	where TServices : ICoreNodeServices
+	where TServices : ICoreServices
 {
 	protected TServices Services { get; }
 

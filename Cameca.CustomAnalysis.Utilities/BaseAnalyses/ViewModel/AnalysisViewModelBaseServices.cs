@@ -3,23 +3,23 @@ using Prism.Events;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public interface IAnalysisViewModelBaseServices : ICoreNodeServices
+public interface IAnalysisViewModelBaseServices : ICoreServices
 {
 	IInstanceProvider InstanceProvider { get; }
 }
 
 internal class AnalysisViewModelBaseServices : IAnalysisViewModelBaseServices
 {
-	private readonly ICoreNodeServices _coreNodeServices;
-	public IEventAggregator EventAggregator => _coreNodeServices.EventAggregator;
-	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
+	private readonly ICoreServices _coreServices;
+	public IEventAggregator EventAggregator => _coreServices.EventAggregator;
+	public IIdProvider IdProvider => _coreServices.IdProvider;
 	public IInstanceProvider InstanceProvider { get; }
 
 	public AnalysisViewModelBaseServices(
-		ICoreNodeServices coreNodeServices,
+		ICoreServices coreServices,
 		IInstanceProvider instanceProvider)
 	{
-		_coreNodeServices = coreNodeServices;
+		_coreServices = coreServices;
 		InstanceProvider = instanceProvider;
 	}
 }

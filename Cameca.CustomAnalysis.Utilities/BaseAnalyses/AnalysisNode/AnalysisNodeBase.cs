@@ -22,6 +22,8 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	protected INodeDataState? DataState;
 
+	protected virtual IEnumerable<IMenuItem> ContextMenuItems => Enumerable.Empty<IMenuItem>();
+
 	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services)
 	{
 		// Get attribute data
@@ -37,15 +39,19 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
-		if (Services.NodeSaveInterceptorProvider.Resolve(InstanceId) is { } saveInterceptor)
+		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
-			saveInterceptor.SaveInterceptor = OnSave;
-			saveInterceptor.SavePreviewInterceptor = OnPreviewSave;
+			saveInterceptor.SaveDelegate = OnSave;
+			saveInterceptor.SavePreviewDelegate = OnPreviewSave;
 		}
 		DataState = Services.DataStateProvider.Resolve(InstanceId);
 		if (DataState is not null)
 		{
 			DataState.PropertyChanged += DataStateOnPropertyChangedRouter;
+		}
+		if (Services.MenuFactoryProvider.Resolve(InstanceId) is { } menuFactory)
+		{
+			menuFactory.ContextMenuItems = ContextMenuItems;
 		}
 	}
 

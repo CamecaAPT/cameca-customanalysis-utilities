@@ -20,15 +20,13 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageProjectUrl></PackageProjectUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/CamecaAPT/cameca-customanalysis-utilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageIcon>Cameca.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="0.1.0-alpha.37" />
+		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="0.1.0-alpha.44" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="Prism.Core" Version="8.1.97" />
 	</ItemGroup>

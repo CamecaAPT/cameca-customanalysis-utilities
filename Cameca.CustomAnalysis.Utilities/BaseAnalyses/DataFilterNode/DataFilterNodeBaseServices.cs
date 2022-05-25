@@ -5,9 +5,9 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public interface IDataFilterNodeBaseServices : ICoreNodeServices
 {
-	INodeDataFilterInterceptorProvider DataFilterInterceptorProvider { get; }
+	INodeDataFilterProvider DataFilterProvider { get; }
 	INodeDataStateProvider DataStateProvider { get; }
-	INodeSaveInterceptorProvider NodeSaveInterceptorProvider { get; }
+	INodePersistenceProvider NodePersistenceProvider { get; }
 }
 
 internal class DataFilterNodeBaseServices : IDataFilterNodeBaseServices
@@ -15,19 +15,20 @@ internal class DataFilterNodeBaseServices : IDataFilterNodeBaseServices
 	private readonly ICoreNodeServices _coreNodeServices;
 	public IEventAggregator EventAggregator => _coreNodeServices.EventAggregator;
 	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
+	public INodeMenuFactoryProvider MenuFactoryProvider => _coreNodeServices.MenuFactoryProvider;
 	public INodeDataStateProvider DataStateProvider { get; }
-	public INodeSaveInterceptorProvider NodeSaveInterceptorProvider { get; }
-	public INodeDataFilterInterceptorProvider DataFilterInterceptorProvider { get; }
+	public INodePersistenceProvider NodePersistenceProvider { get; }
+	public INodeDataFilterProvider DataFilterProvider { get; }
 
 	public DataFilterNodeBaseServices(
 		ICoreNodeServices coreNodeServices,
 		INodeDataStateProvider dataStateProvider,
-		INodeSaveInterceptorProvider nodeSaveInterceptorProvider,
-		INodeDataFilterInterceptorProvider dataFilterInterceptorProvider)
+		INodePersistenceProvider nodePersistenceProvider,
+		INodeDataFilterProvider dataFilterProvider)
 	{
 		_coreNodeServices = coreNodeServices;
 		DataStateProvider = dataStateProvider;
-		NodeSaveInterceptorProvider = nodeSaveInterceptorProvider;
-		DataFilterInterceptorProvider = dataFilterInterceptorProvider;
+		NodePersistenceProvider = nodePersistenceProvider;
+		DataFilterProvider = dataFilterProvider;
 	}
 }
