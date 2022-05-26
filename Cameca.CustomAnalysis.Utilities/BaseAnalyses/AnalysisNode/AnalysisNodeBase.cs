@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
@@ -79,6 +81,15 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 		{
 			Services.EventAggregator.PublishDisplayView(identifier, InstanceId, TypedPublishDisplayViewPredicate(type));
 		}
+	}
+
+	protected Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+		=> Services.IonDataProvider.GetIonData(InstanceId, progress, cancellationToken);
+
+	protected object? Properties
+	{
+		get => Services.NodeProperties.Properties;
+		set => Services.NodeProperties.Properties = value;
 	}
 
 	protected virtual byte[]? OnSave() => null;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
@@ -63,6 +64,9 @@ public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServi
 	protected virtual bool IsInverted => false;
 
 	protected abstract IAsyncEnumerable<ReadOnlyMemory<ulong>> GetIndicesDelegate(IIonData ownerIonData, IProgress<double>? progress, CancellationToken token);
+
+	protected Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+		=> Services.IonDataProvider.GetIonData(InstanceId, progress, cancellationToken);
 
 	protected virtual byte[]? OnSave() => null;
 

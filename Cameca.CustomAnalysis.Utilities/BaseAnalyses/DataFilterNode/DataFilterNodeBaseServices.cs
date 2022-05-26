@@ -16,6 +16,7 @@ internal class DataFilterNodeBaseServices : IDataFilterNodeBaseServices
 	public IEventAggregator EventAggregator => _coreNodeServices.EventAggregator;
 	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider => _coreNodeServices.MenuFactoryProvider;
+	public IIonDataProvider IonDataProvider => _coreNodeServices.IonDataProvider;
 	public INodeDataStateProvider DataStateProvider { get; }
 	public INodePersistenceProvider NodePersistenceProvider { get; }
 	public INodeDataFilterProvider DataFilterProvider { get; }

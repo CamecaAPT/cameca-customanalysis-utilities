@@ -6,6 +6,7 @@ namespace Cameca.CustomAnalysis.Utilities;
 public interface ICoreNodeServices : ICoreServices
 {
 	INodeMenuFactoryProvider MenuFactoryProvider { get; }
+	IIonDataProvider IonDataProvider { get; }
 }
 
 internal class CoreNodeServices : ICoreNodeServices
@@ -14,12 +15,15 @@ internal class CoreNodeServices : ICoreNodeServices
 	public IEventAggregator EventAggregator => _coreServices.EventAggregator;
 	public IIdProvider IdProvider => _coreServices.IdProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider { get; }
+	public IIonDataProvider IonDataProvider { get; }
 
 	public CoreNodeServices(
 		ICoreServices coreServices,
-		INodeMenuFactoryProvider menuFactoryProvider)
+		INodeMenuFactoryProvider menuFactoryProvider,
+		IIonDataProvider ionDataProvider)
 	{
 		_coreServices = coreServices;
 		MenuFactoryProvider = menuFactoryProvider;
+		IonDataProvider = ionDataProvider;
 	}
 }
