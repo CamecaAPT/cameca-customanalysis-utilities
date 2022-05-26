@@ -7,7 +7,7 @@ public interface IAnalysisNodeBaseServices : ICoreNodeServices
 {
 	INodeDataStateProvider DataStateProvider { get; }
 	INodePersistenceProvider NodePersistenceProvider { get; }
-	INodeProperties NodeProperties { get; }
+	INodePropertiesProvider NodePropertiesProvider { get; }
 }
 
 internal class AnalysisNodeBaseServices : IAnalysisNodeBaseServices
@@ -20,17 +20,17 @@ internal class AnalysisNodeBaseServices : IAnalysisNodeBaseServices
 	public IIonDataProvider IonDataProvider => _coreNodeServices.IonDataProvider;
 	public INodeDataStateProvider DataStateProvider { get; }
 	public INodePersistenceProvider NodePersistenceProvider { get; }
-	public INodeProperties NodeProperties { get; }
+	public INodePropertiesProvider NodePropertiesProvider { get; }
 
 	public AnalysisNodeBaseServices(
 		ICoreNodeServices coreNodeServices,
 		INodeDataStateProvider dataStateProvider,
 		INodePersistenceProvider nodePersistenceProvider,
-		INodeProperties nodeProperties)
+		INodePropertiesProvider nodePropertiesProvider)
 	{
 		_coreNodeServices = coreNodeServices;
 		DataStateProvider = dataStateProvider;
 		NodePersistenceProvider = nodePersistenceProvider;
-		NodeProperties = nodeProperties;
+		NodePropertiesProvider = nodePropertiesProvider;
 	}
 }

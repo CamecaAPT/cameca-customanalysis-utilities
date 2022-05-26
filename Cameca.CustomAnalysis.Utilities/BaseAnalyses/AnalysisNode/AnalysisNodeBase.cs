@@ -10,6 +10,8 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 {
+	private INodeProperties? _nodeProperties = null;
+
 	protected record View(string Identifier, Type Type);
 
 	private readonly Lazy<View[]> _defaultViews;
@@ -55,6 +57,11 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 		{
 			menuFactory.ContextMenuItems = ContextMenuItems;
 		}
+
+		if (Services.NodePropertiesProvider.Resolve(InstanceId) is { } nodeProperties)
+		{
+			_nodeProperties = nodeProperties;
+		}
 	}
 
 	private void DataStateOnPropertyChangedRouter(object? sender, PropertyChangedEventArgs e)
@@ -88,8 +95,12 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	protected object? Properties
 	{
-		get => Services.NodeProperties.Properties;
-		set => Services.NodeProperties.Properties = value;
+		get => _nodeProperties?.Properties;
+		set
+		{
+			if (_nodeProperties is not null)
+				_nodeProperties.Properties = value;
+		}
 	}
 
 	protected virtual byte[]? OnSave() => null;
