@@ -95,7 +95,7 @@ public static class RenderDataFactoryExtensions
 		this IRenderDataFactory renderDataFactory,
 		ReadOnlyMemoryND<float> values,
 		Vector2 binSize,
-		ColorMap? colorMap = null,
+		IColorMap? colorMap = null,
 		Vector2? min = null,
 		double? height = null,
 		double? width = null,
