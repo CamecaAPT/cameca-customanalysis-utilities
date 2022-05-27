@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Windows.Media;
 using Cameca.CustomAnalysis.Interface;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -93,7 +94,7 @@ public static class RenderDataFactoryExtensions
 
 	public static IHistogram2DRenderData CreateHistogram2D(
 		this IRenderDataFactory renderDataFactory,
-		ReadOnlyMemoryND<float> values,
+		ReadOnlyMemory2D<float> values,
 		Vector2 binSize,
 		IColorMap? colorMap = null,
 		Vector2? min = null,
