@@ -113,6 +113,12 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 	protected virtual bool MatchExistingViewPredicate(Type targetType, object viewModel)
 		=> viewModel.GetType() == targetType;
 
+	internal override void OnDoubleClickCore()
+	{
+		base.OnDoubleClickCore();
+		RequestDisplayViews();
+	}
+
 	protected override void Dispose(bool disposing)
 	{
 		if (disposing)

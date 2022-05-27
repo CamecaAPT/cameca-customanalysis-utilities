@@ -52,13 +52,18 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		switch (eventArgs.Interaction)
 		{
 			case NodeInteractionType.DoubleClick:
-				OnDoubleClick();
+				OnDoubleClickCore();
 				break;
 		}
 	}
 
 	internal virtual void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 		=> OnInstantiated(eventArgs);
+
+	internal virtual void OnDoubleClickCore()
+	{
+		OnDoubleClick();
+	}
 
 	protected virtual void OnCreated(NodeCreatedEventArgs eventArgs) { }
 
