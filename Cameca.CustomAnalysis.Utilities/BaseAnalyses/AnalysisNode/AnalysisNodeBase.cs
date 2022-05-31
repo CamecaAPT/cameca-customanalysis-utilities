@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
@@ -24,10 +21,6 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	protected virtual IEnumerable<View> DisplayViews => _defaultViews.Value;
 
-	protected INodeDataState? DataState;
-
-	protected virtual IEnumerable<IMenuItem> ContextMenuItems => Enumerable.Empty<IMenuItem>();
-
 	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services)
 	{
 		// Get attribute data
@@ -43,44 +36,11 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
-		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
-		{
-			saveInterceptor.SaveDelegate = OnSave;
-			saveInterceptor.SavePreviewDelegate = OnPreviewSave;
-		}
-		DataState = Services.DataStateProvider.Resolve(InstanceId);
-		if (DataState is not null)
-		{
-			DataState.PropertyChanged += DataStateOnPropertyChangedRouter;
-		}
-		if (Services.MenuFactoryProvider.Resolve(InstanceId) is { } menuFactory)
-		{
-			menuFactory.ContextMenuItems = ContextMenuItems;
-		}
-
 		if (Services.NodePropertiesProvider.Resolve(InstanceId) is { } nodeProperties)
 		{
 			_nodeProperties = nodeProperties;
 		}
 	}
-
-	private void DataStateOnPropertyChangedRouter(object? sender, PropertyChangedEventArgs e)
-	{
-		if (DataState is null) return;  // Should never occur if only handling DataState property
-		switch (e.PropertyName)
-		{
-			case nameof(INodeDataState.IsValid):
-				OnDataIsValidChanged(DataState.IsValid);
-				break;
-			case nameof(INodeDataState.IsErrorState):
-				OnDataErrorStateChanged(DataState.IsErrorState);
-				break;
-		}
-	}
-
-	protected virtual void OnDataIsValidChanged(bool isValid) { }
-
-	protected virtual void OnDataErrorStateChanged(bool isErrorState) { }
 
 	protected virtual void RequestDisplayViews()
 	{
@@ -89,23 +49,19 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 			Services.EventAggregator.PublishDisplayView(identifier, InstanceId, TypedPublishDisplayViewPredicate(type));
 		}
 	}
-
-	protected Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default)
-		=> Services.IonDataProvider.GetIonData(InstanceId, progress, cancellationToken);
-
 	protected object? Properties
 	{
 		get => _nodeProperties?.Properties;
 		set
 		{
-			if (_nodeProperties is not null)
-				_nodeProperties.Properties = value;
+			if (_nodeProperties is null) return;
+			if (_nodeProperties.Properties is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+			_nodeProperties.Properties = value;
 		}
 	}
-
-	protected virtual byte[]? OnSave() => null;
-
-	protected virtual byte[]? OnPreviewSave() => OnSave();
 
 	private Predicate<object> TypedPublishDisplayViewPredicate(Type targetType)
 		=> viewModel => MatchExistingViewPredicate(targetType, viewModel);
@@ -117,18 +73,6 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 	{
 		base.OnDoubleClickCore();
 		RequestDisplayViews();
-	}
-
-	protected override void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			if (DataState is not null)
-			{
-				DataState.PropertyChanged -= DataStateOnPropertyChangedRouter;
-			}
-		}
-		base.Dispose(disposing);
 	}
 }
 #nullable disable

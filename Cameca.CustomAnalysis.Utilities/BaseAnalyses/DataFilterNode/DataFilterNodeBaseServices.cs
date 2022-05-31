@@ -6,8 +6,6 @@ namespace Cameca.CustomAnalysis.Utilities;
 public interface IDataFilterNodeBaseServices : ICoreNodeServices
 {
 	INodeDataFilterProvider DataFilterProvider { get; }
-	INodeDataStateProvider DataStateProvider { get; }
-	INodePersistenceProvider NodePersistenceProvider { get; }
 }
 
 internal class DataFilterNodeBaseServices : IDataFilterNodeBaseServices
@@ -17,19 +15,16 @@ internal class DataFilterNodeBaseServices : IDataFilterNodeBaseServices
 	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider => _coreNodeServices.MenuFactoryProvider;
 	public IIonDataProvider IonDataProvider => _coreNodeServices.IonDataProvider;
-	public INodeDataStateProvider DataStateProvider { get; }
-	public INodePersistenceProvider NodePersistenceProvider { get; }
+	public INodeDataStateProvider DataStateProvider => _coreNodeServices.DataStateProvider;
+	public INodePersistenceProvider NodePersistenceProvider => _coreNodeServices.NodePersistenceProvider;
+	public ICanSaveStateProvider CanSaveStateProvider => _coreNodeServices.CanSaveStateProvider;
 	public INodeDataFilterProvider DataFilterProvider { get; }
 
 	public DataFilterNodeBaseServices(
 		ICoreNodeServices coreNodeServices,
-		INodeDataStateProvider dataStateProvider,
-		INodePersistenceProvider nodePersistenceProvider,
 		INodeDataFilterProvider dataFilterProvider)
 	{
 		_coreNodeServices = coreNodeServices;
-		DataStateProvider = dataStateProvider;
-		NodePersistenceProvider = nodePersistenceProvider;
 		DataFilterProvider = dataFilterProvider;
 	}
 }

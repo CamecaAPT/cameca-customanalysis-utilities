@@ -5,8 +5,6 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public interface IAnalysisNodeBaseServices : ICoreNodeServices
 {
-	INodeDataStateProvider DataStateProvider { get; }
-	INodePersistenceProvider NodePersistenceProvider { get; }
 	INodePropertiesProvider NodePropertiesProvider { get; }
 }
 
@@ -18,19 +16,16 @@ internal class AnalysisNodeBaseServices : IAnalysisNodeBaseServices
 	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider => _coreNodeServices.MenuFactoryProvider;
 	public IIonDataProvider IonDataProvider => _coreNodeServices.IonDataProvider;
-	public INodeDataStateProvider DataStateProvider { get; }
-	public INodePersistenceProvider NodePersistenceProvider { get; }
+	public INodeDataStateProvider DataStateProvider => _coreNodeServices.DataStateProvider;
+	public INodePersistenceProvider NodePersistenceProvider => _coreNodeServices.NodePersistenceProvider;
+	public ICanSaveStateProvider CanSaveStateProvider => _coreNodeServices.CanSaveStateProvider;
 	public INodePropertiesProvider NodePropertiesProvider { get; }
 
 	public AnalysisNodeBaseServices(
 		ICoreNodeServices coreNodeServices,
-		INodeDataStateProvider dataStateProvider,
-		INodePersistenceProvider nodePersistenceProvider,
 		INodePropertiesProvider nodePropertiesProvider)
 	{
 		_coreNodeServices = coreNodeServices;
-		DataStateProvider = dataStateProvider;
-		NodePersistenceProvider = nodePersistenceProvider;
 		NodePropertiesProvider = nodePropertiesProvider;
 	}
 }
