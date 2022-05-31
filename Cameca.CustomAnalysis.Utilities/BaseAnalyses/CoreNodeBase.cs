@@ -29,6 +29,7 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		
 		// Register events
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeCreated(OnCreatedCore, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeSaved(OnSavedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeLoaded(OnLoadedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeAdded(OnAddedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeAfterCreated(OnAfterCreatedCore, InstanceIdFilter));
@@ -39,6 +40,14 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	{
 		OnInstantiatedCoreWrapper(eventArgs);
 		OnCreated(eventArgs);
+	}
+
+	internal virtual void OnSavedCore(NodeSavedEventArgs eventArgs)
+	{
+		if (CanSaveState is { } canSaveState)
+		{
+			canSaveState.CanSave = false;
+		}
 	}
 
 	internal virtual void OnLoadedCore(NodeLoadedEventArgs eventArgs)
@@ -78,8 +87,8 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	{
 		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
-			saveInterceptor.SaveDelegate = OnSave;
-			saveInterceptor.SavePreviewDelegate = OnPreviewSave;
+			saveInterceptor.SaveDelegate = GetSaveContent;
+			saveInterceptor.SavePreviewDelegate = GetPreviewSaveContent;
 		}
 		CanSaveState = Services.CanSaveStateProvider.Resolve(InstanceId);
 		DataState = Services.DataStateProvider.Resolve(InstanceId);
@@ -115,9 +124,9 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	protected Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default)
 		=> Services.IonDataProvider.GetIonData(InstanceId, progress, cancellationToken);
 
-	protected virtual byte[]? OnSave() => null;
+	protected virtual byte[]? GetSaveContent() => null;
 
-	protected virtual byte[]? OnPreviewSave() => OnSave();
+	protected virtual byte[]? GetPreviewSaveContent() => null;
 
 	protected virtual void OnCreated(NodeCreatedEventArgs eventArgs) { }
 
