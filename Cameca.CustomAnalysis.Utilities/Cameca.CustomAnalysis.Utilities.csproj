@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>Cameca.CustomAnalysis.Utilities</Title>
+		<Authors>CAMECA Instruments, Inc</Authors>
+		<Company>CAMECA Instruments, Inc.</Company>
+		<Product>AP Suite</Product>
+		<Description>Base classes, default implementations, and extension methods to simplifying building a custom analysis for CAMECA AP Suite </Description>
+		<Copyright>Copyright (c) CAMECA Instruments, Inc 2022</Copyright>
+		<PackageIcon>Cameca.png</PackageIcon>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/CamecaAPT/cameca-customanalysis-utilities</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="1.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="True" PackagePath="\" />
+		<None Include="..\LICENSE" Pack="True" PackagePath="\" />
+		<None Include="Cameca.png" Pack="True" PackagePath="\" />
+	</ItemGroup>
+
+</Project>
