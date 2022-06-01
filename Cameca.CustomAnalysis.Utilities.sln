@@ -10,11 +10,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		GitVersion.yml = GitVersion.yml
 		NuGet.config = NuGet.config
-		.github\workflows\preview-deployment.yml = .github\workflows\preview-deployment.yml
-		.github\workflows\release-deployment.yml = .github\workflows\release-deployment.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cameca.CustomAnalysis.Utilities", "Cameca.CustomAnalysis.Utilities\Cameca.CustomAnalysis.Utilities.csproj", "{3E5EB3EB-FBDB-4F24-9AE7-E622D8F75DC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{8AC9A68A-DEF1-4B87-B396-345EC802CE0D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflow", "workflow", "{0F8E434C-788A-4999-9FC3-CD8368756F12}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\preview-deployment.yml = .github\workflows\preview-deployment.yml
+		.github\workflows\release-deployment.yml = .github\workflows\release-deployment.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +35,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8AC9A68A-DEF1-4B87-B396-345EC802CE0D} = {15DED9F9-155C-4CD7-86E7-8B54387AE110}
+		{0F8E434C-788A-4999-9FC3-CD8368756F12} = {8AC9A68A-DEF1-4B87-B396-345EC802CE0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {173CA7F9-F8DA-47E9-893B-4CE8EF582E2F}
