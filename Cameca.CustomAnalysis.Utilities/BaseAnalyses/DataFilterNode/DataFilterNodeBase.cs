@@ -8,7 +8,13 @@ namespace Cameca.CustomAnalysis.Utilities;
 public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServices>
 {
 	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
+}
 
+
+public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
+	where TServices : IDataFilterNodeBaseServices
+{
+	protected DataFilterNodeBase(TServices services) : base(services) { }
 
 	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{

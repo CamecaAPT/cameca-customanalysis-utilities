@@ -5,27 +5,23 @@ using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class StandardDataFilterNodeBase : DataFilterNodeBase
+public abstract class StandardDataFilterNodeBase : StandardDataFilterNodeBase<IStandardDataFilterNodeBaseServices>
 {
-	private readonly INodeMenuFactoryProvider _nodeMenuFactoryProvider;
-	private readonly INodeInfoProvider _nodeInfoProvider;
-	private readonly IDialogService _dialogService;
-
-	protected StandardDataFilterNodeBase(IDataFilterNodeBaseServices services,
-		INodeMenuFactoryProvider nodeMenuFactoryProvider,
-		INodeInfoProvider nodeInfoProvider,
-		IDialogService dialogService)
-		: base(services)
+	protected StandardDataFilterNodeBase(IStandardDataFilterNodeBaseServices services) : base(services)
 	{
-		_nodeMenuFactoryProvider = nodeMenuFactoryProvider;
-		_nodeInfoProvider = nodeInfoProvider;
-		_dialogService = dialogService;
 	}
+}
+
+
+public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase<TServices>
+	where TServices : IStandardDataFilterNodeBaseServices
+{
+	protected StandardDataFilterNodeBase(TServices services) : base(services) { }
 
 	protected override void OnInstantiated(INodeInstantiatedEventArgs eventArgs)
 	{
 		base.OnInstantiated(eventArgs);
-		if (_nodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
+		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
 		{
 			nodeMenuFactory.ContextMenuItems = new[]
 			{
@@ -39,10 +35,10 @@ public abstract class StandardDataFilterNodeBase : DataFilterNodeBase
 		var renameParameters = new EditNameDialogParameters
 		{
 			Title = "Rename",
-			Name = _nodeInfoProvider.Resolve(InstanceId)?.Name,
+			Name = Services.NodeInfoProvider.Resolve(InstanceId)?.Name,
 			Validate = x => !string.IsNullOrWhiteSpace(x),
 		};
-		if (_dialogService.TryShowEditNameDialog(out string newName, renameParameters))
+		if (Services.DialogService.TryShowEditNameDialog(out string newName, renameParameters))
 		{
 			Services.EventAggregator.PublishNodeRename(InstanceId, newName);
 		}

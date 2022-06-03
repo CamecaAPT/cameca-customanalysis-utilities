@@ -5,7 +5,13 @@ using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
+public abstract class AnalysisNodeBase : AnalysisNodeBase<IAnalysisNodeBaseServices>
+{
+	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services) { }
+}
+
+public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
+	where TServices : IAnalysisNodeBaseServices
 {
 	private INodeProperties? _nodeProperties = null;
 
@@ -21,7 +27,7 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	protected virtual IEnumerable<View> DisplayViews => _defaultViews.Value;
 
-	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services)
+	protected AnalysisNodeBase(TServices services) : base(services)
 	{
 		// Get attribute data
 		_defaultViews = new(GetDefaultViews);

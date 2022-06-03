@@ -6,28 +6,23 @@ using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class StandardAnalysisNodeBase : AnalysisNodeBase
+public abstract class StandardAnalysisNodeBase : AnalysisNodeBase<IStandardAnalysisNodeBaseServices>
 {
-	private readonly INodeMenuFactoryProvider _nodeMenuFactoryProvider;
-	private readonly INodeInfoProvider _nodeInfoProvider;
-	private readonly IDialogService _dialogService;
+	protected StandardAnalysisNodeBase(IStandardAnalysisNodeBaseServices services) : base(services) { }
+}
 
-	protected StandardAnalysisNodeBase(
-		IAnalysisNodeBaseServices services,
-		INodeMenuFactoryProvider nodeMenuFactoryProvider,
-		INodeInfoProvider nodeInfoProvider,
-		IDialogService dialogService)
-		: base(services)
+
+public abstract class StandardAnalysisNodeBase<TServices> : AnalysisNodeBase<TServices>
+	where TServices : IStandardAnalysisNodeBaseServices
+{
+	protected StandardAnalysisNodeBase(TServices services) : base(services)
 	{
-		_nodeMenuFactoryProvider = nodeMenuFactoryProvider;
-		_nodeInfoProvider = nodeInfoProvider;
-		_dialogService = dialogService;
 	}
 
 	protected override void OnInstantiated(INodeInstantiatedEventArgs eventArgs)
 	{
 		base.OnInstantiated(eventArgs);
-		if (_nodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
+		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
 		{
 			nodeMenuFactory.ContextMenuItems = new[]
 			{
@@ -41,10 +36,10 @@ public abstract class StandardAnalysisNodeBase : AnalysisNodeBase
 		var renameParameters = new EditNameDialogParameters
 		{
 			Title = "Rename",
-			Name = _nodeInfoProvider.Resolve(InstanceId)?.Name,
+			Name = Services.NodeInfoProvider.Resolve(InstanceId)?.Name,
 			Validate = x => !string.IsNullOrWhiteSpace(x),
 		};
-		if (_dialogService.TryShowEditNameDialog(out string newName, renameParameters))
+		if (Services.DialogService.TryShowEditNameDialog(out string newName, renameParameters))
 		{
 			Services.EventAggregator.PublishNodeRename(InstanceId, newName);
 		}
