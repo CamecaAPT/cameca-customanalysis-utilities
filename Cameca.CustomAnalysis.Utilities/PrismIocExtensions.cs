@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Cameca.CustomAnalysis.Utilities.Controls;
+using Cameca.CustomAnalysis.Utilities.Legacy;
 using Prism.Ioc;
 
 namespace Cameca.CustomAnalysis.Utilities;
@@ -64,6 +64,7 @@ public static class PrismIocExtensions
 		}
 		if (registerLegacy)
 		{
+			containerRegistry.Register<IViewBuilder, ViewBuilder>();
 		}
 	}
 
