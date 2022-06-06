@@ -6,7 +6,7 @@ using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class StandardAnalysisNodeBase : AnalysisNodeBase<IStandardAnalysisNodeBaseServices>
+public abstract class StandardAnalysisNodeBase : StandardAnalysisNodeBase<IStandardAnalysisNodeBaseServices>
 {
 	protected StandardAnalysisNodeBase(IStandardAnalysisNodeBaseServices services) : base(services) { }
 }
