@@ -5,6 +5,7 @@
 		<UseWPF>true</UseWPF>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -26,9 +27,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="1.1.0-alpha.69" />
+		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="1.1.0-alpha.69" ExcludeAssets="Runtime" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="Prism.Wpf" Version="8.1.97" />
+		<PackageReference Include="Prism.Wpf" Version="8.1.97" ExcludeAssets="Runtime" />
 	</ItemGroup>
 
 	<ItemGroup>
