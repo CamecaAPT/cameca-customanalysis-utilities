@@ -19,9 +19,9 @@ public abstract class StandardAnalysisNodeBase<TServices> : AnalysisNodeBase<TSe
 	{
 	}
 
-	protected override void OnInstantiated(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
-		base.OnInstantiated(eventArgs);
+		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
 		{
 			nodeMenuFactory.ContextMenuItems = new[]

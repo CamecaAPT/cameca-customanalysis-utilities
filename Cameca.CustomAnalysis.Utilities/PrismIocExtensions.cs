@@ -28,4 +28,10 @@ public static class PrismIocExtensions
 			containerRegistry.RegisterDialog<EditNameDialogView, EditNameDialogViewModel>(EditNameDialog.EditNameDialogName);
 		}
 	}
+
+	[Obsolete("Use PrismIocExtensions.AddCustomAnalysisUtilities")]
+	public static void RegisterCoreServices(this IContainerRegistry containerRegistry)
+	{
+		containerRegistry.AddCustomAnalysisUtilities();
+	}
 }

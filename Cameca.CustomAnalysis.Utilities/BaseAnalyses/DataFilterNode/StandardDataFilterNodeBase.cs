@@ -18,9 +18,9 @@ public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase
 {
 	protected StandardDataFilterNodeBase(TServices services) : base(services) { }
 
-	protected override void OnInstantiated(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
 	{
-		base.OnInstantiated(eventArgs);
+		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
 		{
 			nodeMenuFactory.ContextMenuItems = new[]
