@@ -15,6 +15,7 @@ internal partial class EditNameDialogView
 	private void EditNameDialogView_OnLoaded(object sender, RoutedEventArgs e)
 	{
 		Keyboard.Focus(NameTextBox);
+		NameTextBox.Select(0, NameTextBox.Text.Length);
 		this.Loaded -= EditNameDialogView_OnLoaded;
 	}
 }
