@@ -6,7 +6,7 @@ using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
-public abstract class AnalysisMenuFactoryBase : IAnalysisMenuFactory
+public abstract class LegacyAnalysisMenuFactoryBase : IAnalysisMenuFactory
 {
 	protected abstract INodeDisplayInfo DisplayInfo { get; }
 	protected abstract string NodeUniqueId { get; }
@@ -14,7 +14,7 @@ public abstract class AnalysisMenuFactoryBase : IAnalysisMenuFactory
 	protected readonly IEventAggregator EventAggregator;
 	protected readonly IDialogService DialogService;
 
-	protected AnalysisMenuFactoryBase(IEventAggregator eventAggregator, IDialogService dialogService)
+	protected LegacyAnalysisMenuFactoryBase(IEventAggregator eventAggregator, IDialogService dialogService)
 	{
 		EventAggregator = eventAggregator;
 		DialogService = dialogService;
