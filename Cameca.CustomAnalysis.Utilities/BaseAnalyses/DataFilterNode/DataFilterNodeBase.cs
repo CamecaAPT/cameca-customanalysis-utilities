@@ -10,7 +10,7 @@ public abstract class DataFilterNodeBase : DataFilterNodeBase<IDataFilterNodeBas
 	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
 }
 
-
+[NodeType(NodeType.DataFilter)]
 public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 	where TServices : IDataFilterNodeBaseServices
 {
