@@ -5,7 +5,7 @@ using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServices>
+public abstract class DataFilterNodeBase : DataFilterNodeBase<IDataFilterNodeBaseServices>
 {
 	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
 }
