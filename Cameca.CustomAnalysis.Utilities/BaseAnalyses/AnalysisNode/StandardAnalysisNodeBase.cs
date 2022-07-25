@@ -19,7 +19,7 @@ public abstract class StandardAnalysisNodeBase<TServices> : AnalysisNodeBase<TSe
 	{
 	}
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
@@ -41,7 +41,7 @@ public abstract class StandardAnalysisNodeBase<TServices> : AnalysisNodeBase<TSe
 		};
 		if (Services.DialogService.TryShowEditNameDialog(out string newName, renameParameters))
 		{
-			Services.EventAggregator.PublishNodeRename(InstanceId, newName);
+			Services.EventAggregator.PublishRenameNode(InstanceId, newName);
 		}
 	}
 

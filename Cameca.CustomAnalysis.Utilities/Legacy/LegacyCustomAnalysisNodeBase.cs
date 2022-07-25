@@ -36,21 +36,24 @@ public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : Standa
 		return Encoding.UTF8.GetBytes(stringWriter.ToString());
 	}
 
-	protected override void OnLoaded(NodeLoadedEventArgs eventArgs)
+	protected override void OnCreated(NodeCreatedEventArgs eventArgs)
 	{
-		base.OnLoaded(eventArgs);
-
-		if (eventArgs.Data is not { } data) return;
-		var xmlData = Encoding.UTF8.GetString(data);
-		var serializer = new XmlSerializer(typeof(TOptions));
-		using var stringReader = new StringReader(xmlData);
-		if (serializer.Deserialize(stringReader) is TOptions loadedOptions)
+		base.OnCreated(eventArgs);
+		
+		// If loading existing and data is present, populate Options property from serialized data
+		if (eventArgs.Trigger == EventTrigger.Load && eventArgs.Data is { } data)
 		{
-			Options = loadedOptions;
+			var xmlData = Encoding.UTF8.GetString(data);
+			var serializer = new XmlSerializer(typeof(TOptions));
+			using var stringReader = new StringReader(xmlData);
+			if (serializer.Deserialize(stringReader) is TOptions loadedOptions)
+			{
+				Options = loadedOptions;
+			}
 		}
 	}
 
-	protected override void OnInstantiated(INodeInstantiatedEventArgs eventArgs)
+	protected override void OnInstantiated(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnInstantiated(eventArgs);
 		Options.PropertyChanged += OptionsOnPropertyChanged;

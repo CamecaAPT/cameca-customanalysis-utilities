@@ -30,10 +30,8 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		// Register events
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeCreated(OnCreatedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeSaved(OnSavedCore, InstanceIdFilter));
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeLoaded(OnLoadedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeAdded(OnAddedCore, InstanceIdFilter));
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeAfterCreated(OnAfterCreatedCore, InstanceIdFilter));
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeInteraction(NodeInteractionRouter, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeInteracted(NodeInteractedRouter, InstanceIdFilter));
 	}
 
 	internal virtual void OnCreatedCore(NodeCreatedEventArgs eventArgs)
@@ -50,40 +48,34 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		}
 	}
 
-	internal virtual void OnLoadedCore(NodeLoadedEventArgs eventArgs)
-	{
-		OnInstantiatedCoreWrapper(eventArgs);
-		OnLoaded(eventArgs);
-	}
-
 	internal virtual void OnAddedCore(NodeAddedEventArgs eventArgs)
 	{
 		OnAdded(eventArgs);
 	}
 
-	internal virtual void OnAfterCreatedCore(NodeAfterCreatedEventArgs eventArgs)
+	internal virtual void OnAfterCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		OnAfterCreated(eventArgs);
 	}
 
-	internal virtual void NodeInteractionRouter(NodeInteractionEventArgs eventArgs)
+	internal virtual void NodeInteractedRouter(NodeInteractedEventArgs eventArgs)
 	{
 		switch (eventArgs.Interaction)
 		{
-			case NodeInteractionType.DoubleClick:
+			case InteractionType.DoubleClick:
 				OnDoubleClickCore();
 				break;
 		}
 	}
 
-	private void OnInstantiatedCoreWrapper(INodeInstantiatedEventArgs eventArgs)
+	private void OnInstantiatedCoreWrapper(NodeCreatedEventArgs eventArgs)
 	{
 		OnInstantiatedCore(eventArgs);
 		// Call overridable handler after all internal setup complete
 		OnInstantiated(eventArgs);
 	}
 
-	internal virtual void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal virtual void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{
@@ -130,13 +122,11 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 
 	protected virtual void OnCreated(NodeCreatedEventArgs eventArgs) { }
 
-	protected virtual void OnLoaded(NodeLoadedEventArgs eventArgs) { }
-
-	protected virtual void OnInstantiated(INodeInstantiatedEventArgs eventArgs) { }
+	protected virtual void OnInstantiated(NodeCreatedEventArgs eventArgs) { }
 
 	protected virtual void OnAdded(NodeAddedEventArgs eventArgs) { }
 
-	protected virtual void OnAfterCreated(NodeAfterCreatedEventArgs eventArgs) { }
+	protected virtual void OnAfterCreated(NodeCreatedEventArgs eventArgs) { }
 
 	protected virtual void OnDoubleClick() { }
 

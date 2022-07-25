@@ -27,7 +27,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="6.0.4" />
-		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="1.1.0-alpha.69" />
+		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="1.1.0-alpha.79" />
 		<PackageReference Include="Cameca.Extensions.Controls" Version="1.1.0-alpha.1" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="Prism.Wpf" Version="8.1.97" />

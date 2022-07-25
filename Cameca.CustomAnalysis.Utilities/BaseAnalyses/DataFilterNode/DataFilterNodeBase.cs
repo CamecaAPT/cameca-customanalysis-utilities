@@ -16,7 +16,7 @@ public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 {
 	protected DataFilterNodeBase(TServices services) : base(services) { }
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
 		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)

@@ -33,13 +33,16 @@ public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
 		_defaultViews = new(GetDefaultViews);
 	}
 
-	internal override void OnAfterCreatedCore(NodeAfterCreatedEventArgs eventArgs)
+	internal override void OnAfterCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnAfterCreatedCore(eventArgs);
-		RequestDisplayViews();
+		if (eventArgs.Trigger == EventTrigger.Create)
+		{
+			RequestDisplayViews();
+		}
 	}
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodePropertiesProvider.Resolve(InstanceId) is { } nodeProperties)
@@ -52,9 +55,10 @@ public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
 	{
 		foreach (var (identifier, type) in DisplayViews)
 		{
-			Services.EventAggregator.PublishDisplayView(identifier, InstanceId, TypedPublishDisplayViewPredicate(type));
+			Services.EventAggregator.PublishCreateViewModel(identifier, InstanceId, ViewModelMode.Interactive, matchExisting: TypedPublishDisplayViewPredicate(type));
 		}
 	}
+
 	protected object? Properties
 	{
 		get => _nodeProperties?.Properties;

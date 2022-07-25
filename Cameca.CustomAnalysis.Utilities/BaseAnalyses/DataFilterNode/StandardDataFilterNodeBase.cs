@@ -18,7 +18,7 @@ public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase
 {
 	protected StandardDataFilterNodeBase(TServices services) : base(services) { }
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnInstantiatedCore(eventArgs);
 		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
@@ -40,7 +40,7 @@ public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase
 		};
 		if (Services.DialogService.TryShowEditNameDialog(out string newName, renameParameters))
 		{
-			Services.EventAggregator.PublishNodeRename(InstanceId, newName);
+			Services.EventAggregator.PublishRenameNode(InstanceId, newName);
 		}
 	}
 
