@@ -28,15 +28,15 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		ManagedSubscriptions = new DisposableList<SubscriptionToken>();
 		
 		// Register events
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeCreated(OnCreatedCore, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeCreated(OnCreatedCoreWrapper, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeSaved(OnSavedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeAdded(OnAddedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeNodeInteracted(NodeInteractedRouter, InstanceIdFilter));
 	}
 
-	internal virtual void OnCreatedCore(NodeCreatedEventArgs eventArgs)
+	private void OnCreatedCoreWrapper(NodeCreatedEventArgs eventArgs)
 	{
-		OnInstantiatedCore(eventArgs);
+		OnCreatedCore(eventArgs);
 		// Call overridable handler after all internal setup complete
 		OnCreated(eventArgs);
 	}
@@ -64,7 +64,7 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		}
 	}
 
-	internal virtual void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
+	internal virtual void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
 		{

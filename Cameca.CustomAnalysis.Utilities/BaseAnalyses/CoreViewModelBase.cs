@@ -19,16 +19,19 @@ public abstract class CoreViewModelBase<TServices> : BindableBase, IDisposable
 		Services = services;
 		ManagedSubscriptions = new DisposableList<SubscriptionToken>();
 		
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelCreated(OnCreatedCore, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelCreated(OnCreatedCoreWrapper, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelAdded(OnAddedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelActivated(OnActivatedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelDeleted(OnDeletedCore, InstanceIdFilter));
 	}
 
-	internal virtual void OnCreatedCore(ViewModelCreatedEventArgs eventArgs)
+	private void OnCreatedCoreWrapper(ViewModelCreatedEventArgs eventArgs)
 	{
+		OnCreatedCore(eventArgs);
 		OnCreated(eventArgs);
 	}
+
+	internal virtual void OnCreatedCore(ViewModelCreatedEventArgs eventArgs) { }
 
 	internal virtual void OnAddedCore(ViewModelAddedEventArgs eventArgs)
 	{

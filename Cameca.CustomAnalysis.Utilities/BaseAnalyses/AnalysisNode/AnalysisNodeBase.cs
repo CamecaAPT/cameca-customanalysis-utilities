@@ -42,9 +42,9 @@ public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
 		}
 	}
 
-	internal override void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
+	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
-		base.OnInstantiatedCore(eventArgs);
+		base.OnCreatedCore(eventArgs);
 		if (Services.NodePropertiesProvider.Resolve(InstanceId) is { } nodeProperties)
 		{
 			_nodeProperties = nodeProperties;
