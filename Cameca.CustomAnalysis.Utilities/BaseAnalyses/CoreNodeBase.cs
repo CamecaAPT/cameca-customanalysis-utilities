@@ -36,7 +36,8 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 
 	internal virtual void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
-		OnInstantiatedCoreWrapper(eventArgs);
+		OnInstantiatedCore(eventArgs);
+		// Call overridable handler after all internal setup complete
 		OnCreated(eventArgs);
 	}
 
@@ -53,11 +54,6 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 		OnAdded(eventArgs);
 	}
 
-	internal virtual void OnAfterCreatedCore(NodeCreatedEventArgs eventArgs)
-	{
-		OnAfterCreated(eventArgs);
-	}
-
 	internal virtual void NodeInteractedRouter(NodeInteractedEventArgs eventArgs)
 	{
 		switch (eventArgs.Interaction)
@@ -66,13 +62,6 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 				OnDoubleClickCore();
 				break;
 		}
-	}
-
-	private void OnInstantiatedCoreWrapper(NodeCreatedEventArgs eventArgs)
-	{
-		OnInstantiatedCore(eventArgs);
-		// Call overridable handler after all internal setup complete
-		OnInstantiated(eventArgs);
 	}
 
 	internal virtual void OnInstantiatedCore(NodeCreatedEventArgs eventArgs)
@@ -121,8 +110,6 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	protected virtual byte[]? GetPreviewSaveContent() => null;
 
 	protected virtual void OnCreated(NodeCreatedEventArgs eventArgs) { }
-
-	protected virtual void OnInstantiated(NodeCreatedEventArgs eventArgs) { }
 
 	protected virtual void OnAdded(NodeAddedEventArgs eventArgs) { }
 

@@ -39,7 +39,8 @@ public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : Standa
 	protected override void OnCreated(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnCreated(eventArgs);
-		
+		Options.PropertyChanged += OptionsOnPropertyChanged;
+
 		// If loading existing and data is present, populate Options property from serialized data
 		if (eventArgs.Trigger == EventTrigger.Load && eventArgs.Data is { } data)
 		{
@@ -51,12 +52,6 @@ public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : Standa
 				Options = loadedOptions;
 			}
 		}
-	}
-
-	protected override void OnInstantiated(NodeCreatedEventArgs eventArgs)
-	{
-		base.OnInstantiated(eventArgs);
-		Options.PropertyChanged += OptionsOnPropertyChanged;
 	}
 
 	private void OptionsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

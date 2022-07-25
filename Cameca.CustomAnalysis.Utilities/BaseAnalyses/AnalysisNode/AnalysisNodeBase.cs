@@ -33,9 +33,9 @@ public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
 		_defaultViews = new(GetDefaultViews);
 	}
 
-	internal override void OnAfterCreatedCore(NodeCreatedEventArgs eventArgs)
+	internal override void OnAddedCore(NodeAddedEventArgs eventArgs)
 	{
-		base.OnAfterCreatedCore(eventArgs);
+		base.OnAddedCore(eventArgs);
 		if (eventArgs.Trigger == EventTrigger.Create)
 		{
 			RequestDisplayViews();
