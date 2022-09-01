@@ -19,14 +19,23 @@ public abstract class CoreViewModelBase<TServices> : BindableBase, IDisposable
 		Services = services;
 		ManagedSubscriptions = new DisposableList<SubscriptionToken>();
 		
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelCreated(OnCreatedCore, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelCreated(OnCreatedCoreWrapper, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelAdded(OnAddedCore, InstanceIdFilter));
 		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelActivated(OnActivatedCore, InstanceIdFilter));
-		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelClosed(OnClosedCore, InstanceIdFilter));
+		ManagedSubscriptions.Add(Services.EventAggregator.SubscribeViewModelDeleted(OnDeletedCore, InstanceIdFilter));
 	}
 
-	internal virtual void OnCreatedCore(ViewModelCreatedEventArgs eventArgs)
+	private void OnCreatedCoreWrapper(ViewModelCreatedEventArgs eventArgs)
 	{
+		OnCreatedCore(eventArgs);
 		OnCreated(eventArgs);
+	}
+
+	internal virtual void OnCreatedCore(ViewModelCreatedEventArgs eventArgs) { }
+
+	internal virtual void OnAddedCore(ViewModelAddedEventArgs eventArgs)
+	{
+		OnAdded(eventArgs);
 	}
 
 	internal virtual void OnActivatedCore(ViewModelActivatedEventArgs eventArgs)
@@ -34,16 +43,18 @@ public abstract class CoreViewModelBase<TServices> : BindableBase, IDisposable
 		OnActivated(eventArgs);
 	}
 
-	internal virtual void OnClosedCore(ViewModelClosedEventArgs eventArgs)
+	internal virtual void OnDeletedCore(ViewModelDeletedEventArgs eventArgs)
 	{
 		OnClosed(eventArgs);
 	}
 
 	protected virtual void OnCreated(ViewModelCreatedEventArgs eventArgs) { }
 
+	protected virtual void OnAdded(ViewModelAddedEventArgs eventArgs) { }
+
 	protected virtual void OnActivated(ViewModelActivatedEventArgs eventArgs) { }
 
-	protected virtual void OnClosed(ViewModelClosedEventArgs eventArgs) { }
+	protected virtual void OnClosed(ViewModelDeletedEventArgs eventArgs) { }
 
 	protected virtual bool InstanceIdFilter(IViewModelTargetEvent targetEventArgs)
 		=> targetEventArgs.ViewModelId == InstanceId;

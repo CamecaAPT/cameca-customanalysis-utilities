@@ -5,14 +5,20 @@ using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class DataFilterNodeBase : CoreNodeBase<IDataFilterNodeBaseServices>
+public abstract class DataFilterNodeBase : DataFilterNodeBase<IDataFilterNodeBaseServices>
 {
 	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
+}
 
+[NodeType(NodeType.DataFilter)]
+public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
+	where TServices : IDataFilterNodeBaseServices
+{
+	protected DataFilterNodeBase(TServices services) : base(services) { }
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
-		base.OnInstantiatedCore(eventArgs);
+		base.OnCreatedCore(eventArgs);
 		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegate;

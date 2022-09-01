@@ -5,7 +5,13 @@ using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
+public abstract class AnalysisNodeBase : AnalysisNodeBase<IAnalysisNodeBaseServices>
+{
+	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services) { }
+}
+
+public abstract class AnalysisNodeBase<TServices> : CoreNodeBase<TServices>
+	where TServices : IAnalysisNodeBaseServices
 {
 	private INodeProperties? _nodeProperties = null;
 
@@ -21,21 +27,24 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 
 	protected virtual IEnumerable<View> DisplayViews => _defaultViews.Value;
 
-	protected AnalysisNodeBase(IAnalysisNodeBaseServices services) : base(services)
+	protected AnalysisNodeBase(TServices services) : base(services)
 	{
 		// Get attribute data
 		_defaultViews = new(GetDefaultViews);
 	}
 
-	internal override void OnAfterCreatedCore(NodeAfterCreatedEventArgs eventArgs)
+	internal override void OnAddedCore(NodeAddedEventArgs eventArgs)
 	{
-		base.OnAfterCreatedCore(eventArgs);
-		RequestDisplayViews();
+		base.OnAddedCore(eventArgs);
+		if (eventArgs.Trigger == EventTrigger.Create)
+		{
+			RequestDisplayViews();
+		}
 	}
 
-	internal override void OnInstantiatedCore(INodeInstantiatedEventArgs eventArgs)
+	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
-		base.OnInstantiatedCore(eventArgs);
+		base.OnCreatedCore(eventArgs);
 		if (Services.NodePropertiesProvider.Resolve(InstanceId) is { } nodeProperties)
 		{
 			_nodeProperties = nodeProperties;
@@ -46,9 +55,10 @@ public abstract class AnalysisNodeBase : CoreNodeBase<IAnalysisNodeBaseServices>
 	{
 		foreach (var (identifier, type) in DisplayViews)
 		{
-			Services.EventAggregator.PublishDisplayView(identifier, InstanceId, TypedPublishDisplayViewPredicate(type));
+			Services.EventAggregator.PublishCreateViewModel(identifier, InstanceId, ViewModelMode.Interactive, matchExisting: TypedPublishDisplayViewPredicate(type));
 		}
 	}
+
 	protected object? Properties
 	{
 		get => _nodeProperties?.Properties;
