@@ -4,8 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using AsyncAwaitBestPractices.MVVM;
 using Cameca.CustomAnalysis.Interface;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
@@ -17,7 +17,7 @@ public abstract class LegacyCustomAnalysisViewModelBase<TNode, TAnalysis, TOptio
 	protected readonly Func<IViewBuilder> ViewBuilderFactory;
 	protected bool OptionsChanged = false;
 
-	private readonly AsyncCommand _runCommand;
+	private readonly IAsyncRelayCommand _runCommand;
 	public ICommand RunCommand => _runCommand;
 
 	public ObservableCollection<object> Tabs { get; } = new();
@@ -37,7 +37,7 @@ public abstract class LegacyCustomAnalysisViewModelBase<TNode, TAnalysis, TOptio
 		: base(services)
 	{
 		ViewBuilderFactory = viewBuilderFactory;
-		_runCommand = new AsyncCommand(OnRun, RunCommandEnabled);
+		_runCommand = new AsyncRelayCommand(OnRun, RunCommandEnabled);
 	}
 
 	protected virtual async Task OnRun()
@@ -75,10 +75,10 @@ public abstract class LegacyCustomAnalysisViewModelBase<TNode, TAnalysis, TOptio
 	private void OptionsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
 	{
 		OptionsChanged = true;
-		_runCommand.RaiseCanExecuteChanged();
+		_runCommand.NotifyCanExecuteChanged();
 	}
 
-	private bool RunCommandEnabled(object? _) => !Tabs.Any() || OptionsChanged;
+	private bool RunCommandEnabled() => !Tabs.Any() || OptionsChanged;
 
 	protected override void Dispose(bool disposing)
 	{
