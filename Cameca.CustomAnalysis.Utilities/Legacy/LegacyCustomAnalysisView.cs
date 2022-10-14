@@ -13,7 +13,7 @@ using Prism.Mvvm;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
-internal class LegacyCustomAnalysisView : UserControl
+public class LegacyCustomAnalysisView : UserControl
 {
 	private const string TabItemTitlePropertyName = "Title";
 	private const string RunButtonContent = "Run";
