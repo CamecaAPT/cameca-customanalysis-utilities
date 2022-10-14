@@ -54,4 +54,11 @@ internal static class PresentationFrameworkFluentBuilderExtensions
 		factory.SetBinding(dp, binding);
 		return factory;
 	}
+
+	/// <inheritdoc cref="FrameworkElementFactory.SetBinding(DependencyProperty, BindingBase)"/>
+	public static T SealDataTemplate<T>(this T dataTemplate) where T : DataTemplate
+	{
+		dataTemplate.Seal();
+		return dataTemplate;
+	}
 }

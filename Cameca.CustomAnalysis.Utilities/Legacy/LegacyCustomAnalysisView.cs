@@ -86,39 +86,39 @@ public class LegacyCustomAnalysisView : UserControl
 			{
 				Resources = new ResourceDictionary
 				{
-					[typeof(Chart3DTabViewModel)] = new DataTemplate(typeof(Chart3DTabViewModel))
+					[new DataTemplateKey(typeof(Chart3DTabViewModel))] = new DataTemplate(typeof(Chart3DTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Chart3D))
 							.SetBindingFefExt(Chart3D.DataSourceProperty, new Binding(nameof(Chart3DTabViewModel.RenderData))),
-					},
-					[typeof(Chart2DTabViewModel)] = new DataTemplate(typeof(Chart2DTabViewModel))
+					}.SealDataTemplate(),
+					[new DataTemplateKey(typeof(Chart2DTabViewModel))] = new DataTemplate(typeof(Chart2DTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Chart2D))
 							.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Chart2DTabViewModel.RenderData)))
 							.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Chart2DTabViewModel.XAxis)))
 							.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Chart2DTabViewModel.YAxis))),
-					},
-					[typeof(Histogram2DTabViewModel)] = new DataTemplate(typeof(Histogram2DTabViewModel))
+					}.SealDataTemplate(),
+					[new DataTemplateKey(typeof(Histogram2DTabViewModel))] = new DataTemplate(typeof(Histogram2DTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Histogram2D))
 							.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Histogram2DTabViewModel.RenderData)))
 							.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Histogram2DTabViewModel.XAxis)))
 							.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Histogram2DTabViewModel.YAxis))),
-					},
-					[typeof(TableTabViewModel)] = new DataTemplate(typeof(TableTabViewModel))
+					}.SealDataTemplate(),
+					[new DataTemplateKey(typeof(TableTabViewModel))] = new DataTemplate(typeof(TableTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Table))
 							.SetBindingFefExt(Table.ItemsSourceProperty, new Binding(nameof(TableTabViewModel.Items)))
 							.SetValueFefExt(Table.AutoWidthProperty, true),
-					},
-					[typeof(TextTabViewModel)] = new DataTemplate(typeof(TextTabViewModel))
+					}.SealDataTemplate(),
+					[new DataTemplateKey(typeof(TextTabViewModel))] = new DataTemplate(typeof(TextTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(TextBlock))
 							.SetBindingFefExt(TextBlock.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneWay })
 							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Top)
 							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Left)
 							.SetValueFefExt(TextBlock.TextWrappingProperty, TextWrapping.WrapWithOverflow),
-					},
+					}.SealDataTemplate(),
 				},
 			}.SetGridColumn(2)
 				.SetBindingEx(ItemsControl.ItemsSourceProperty, LegacyCustomAnalysisViewModelTabs)
