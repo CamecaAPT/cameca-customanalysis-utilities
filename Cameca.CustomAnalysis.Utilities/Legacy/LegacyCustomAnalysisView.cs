@@ -27,6 +27,7 @@ public class LegacyCustomAnalysisView : UserControl
 	public LegacyCustomAnalysisView()
 	{
 		Resources = BuildResources();
+		Content = BuildContent();
 	}
 
 	private ResourceDictionary BuildResources() => new ResourceDictionary
