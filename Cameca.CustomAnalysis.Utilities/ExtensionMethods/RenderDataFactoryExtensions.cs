@@ -27,6 +27,28 @@ public static class RenderDataFactoryExtensions
 		renderData.IsVisible = isVisible;
 		return renderData;
 	}
+	
+	public static ISpheresRenderData CreateSpheres(
+		this IRenderDataFactory renderDataFactory,
+		ReadOnlyMemory<Vector3> positions,
+		Color color = default,
+		string? name = null,
+		bool isVisible = true,
+		float? radius = null,
+		int? resolution = null)
+	{
+		var renderData = renderDataFactory.CreateSpheres();
+		renderData.Positions = positions;
+		renderData.Color = color;
+		if (name is not null)
+			renderData.Name = name;
+		renderData.IsVisible = isVisible;
+		if (radius.HasValue)
+			renderData.Radius = radius.Value;
+		if (resolution.HasValue)
+			renderData.Resolution = resolution.Value;
+		return renderData;
+	}
 
 	public static ISurfaceRenderData CreateSurface(
 		this IRenderDataFactory renderDataFactory,
