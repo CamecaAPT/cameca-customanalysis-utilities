@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using Cameca.CustomAnalysis.Interface;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
