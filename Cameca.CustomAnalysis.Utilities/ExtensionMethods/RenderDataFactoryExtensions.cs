@@ -114,8 +114,7 @@ public static class RenderDataFactoryExtensions
 		return renderData;
 	}
 
-	public static IHistogram2DRenderData CreateHistogram2D(
-		this IRenderDataFactory renderDataFactory,
+	public static IHistogram2DRenderData CreateHistogram2D(this IRenderDataFactory renderDataFactory,
 		ReadOnlyMemory2D<float> values,
 		Vector2 binSize,
 		IColorMap? colorMap = null,
@@ -123,10 +122,12 @@ public static class RenderDataFactoryExtensions
 		double? height = null,
 		double? width = null,
 		string? name = null,
-		bool isVisible = true)
+		bool isVisible = true,
+		float? minValue = null,
+		float? maxValue = null)
 	{
 		var renderData = renderDataFactory.CreateHistogram2D();
-		renderData.Update(values, binSize, min ?? default);
+		renderData.Update(values, binSize, min ?? default, minValue, maxValue);
 		renderData.ColorMap = colorMap;
 		if (height.HasValue)
 			renderData.Height = height.Value;
