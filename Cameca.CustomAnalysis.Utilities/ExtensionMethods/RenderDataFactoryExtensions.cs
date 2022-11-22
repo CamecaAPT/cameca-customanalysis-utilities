@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Windows.Media;
 using Cameca.CustomAnalysis.Interface;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -25,6 +25,28 @@ public static class RenderDataFactoryExtensions
 		if (name is not null)
 			renderData.Name = name;
 		renderData.IsVisible = isVisible;
+		return renderData;
+	}
+	
+	public static ISpheresRenderData CreateSpheres(
+		this IRenderDataFactory renderDataFactory,
+		ReadOnlyMemory<Vector3> positions,
+		Color color = default,
+		string? name = null,
+		bool isVisible = true,
+		float? radius = null,
+		int? resolution = null)
+	{
+		var renderData = renderDataFactory.CreateSpheres();
+		renderData.Positions = positions;
+		renderData.Color = color;
+		if (name is not null)
+			renderData.Name = name;
+		renderData.IsVisible = isVisible;
+		if (radius.HasValue)
+			renderData.Radius = radius.Value;
+		if (resolution.HasValue)
+			renderData.Resolution = resolution.Value;
 		return renderData;
 	}
 
@@ -92,8 +114,7 @@ public static class RenderDataFactoryExtensions
 		return renderData;
 	}
 
-	public static IHistogram2DRenderData CreateHistogram2D(
-		this IRenderDataFactory renderDataFactory,
+	public static IHistogram2DRenderData CreateHistogram2D(this IRenderDataFactory renderDataFactory,
 		ReadOnlyMemory2D<float> values,
 		Vector2 binSize,
 		IColorMap? colorMap = null,
@@ -101,10 +122,12 @@ public static class RenderDataFactoryExtensions
 		double? height = null,
 		double? width = null,
 		string? name = null,
-		bool isVisible = true)
+		bool isVisible = true,
+		float? minValue = null,
+		float? maxValue = null)
 	{
 		var renderData = renderDataFactory.CreateHistogram2D();
-		renderData.Update(values, binSize, min ?? default);
+		renderData.Update(values, binSize, min ?? default, minValue, maxValue);
 		renderData.ColorMap = colorMap;
 		if (height.HasValue)
 			renderData.Height = height.Value;

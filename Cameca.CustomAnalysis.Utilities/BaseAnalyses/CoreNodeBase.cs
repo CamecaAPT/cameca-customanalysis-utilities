@@ -14,6 +14,26 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	protected INodeDataState? DataState { get; private set; }
 	protected ICanSaveState? CanSaveState { get; private set; }
 
+	protected bool DataStateIsValid
+	{
+		get => DataState?.IsValid ?? true;
+		set
+		{
+			if (DataState is not null)
+				DataState.IsValid = value;
+		}
+	}
+
+	protected bool CanSave
+	{
+		get => CanSaveState?.CanSave ?? false;
+		set
+		{
+			if (CanSaveState is not null)
+				CanSaveState.CanSave = value;
+		}
+	}
+
 	protected TServices Services { get; }
 
 	protected Guid InstanceId => Services.IdProvider.Get(this);
