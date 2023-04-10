@@ -57,11 +57,13 @@ public static class PrismIocExtensions
 			containerRegistry.Register<IAnalysisNodeBaseServices, AnalysisNodeBaseServices>();
 			containerRegistry.Register<IDataFilterNodeBaseServices, DataFilterNodeBaseServices>();
 			containerRegistry.Register<IAnalysisViewModelBaseServices, AnalysisViewModelBaseServices>();
+			containerRegistry.Register<IAnalysisFilterNodeBaseServices, AnalysisFilterNodeBaseServices>();
 		}
 		if (registerStandardBaseClasses)
 		{
 			containerRegistry.Register<IStandardAnalysisNodeBaseServices, StandardAnalysisNodeBaseServices>();
 			containerRegistry.Register<IStandardDataFilterNodeBaseServices, StandardDataFilterNodeBaseServices>();
+			containerRegistry.Register<IStandardAnalysisFilterNodeBaseServices, StandardAnalysisFilterNodeBaseServices>();
 		}
 		if (registerDialogs)
 		{
