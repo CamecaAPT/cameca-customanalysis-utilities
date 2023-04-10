@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -86,4 +91,188 @@ public static class IonDataExtensions
 		// exceptional circumstances (file corruption, etc)
 		return await reconstructionSections.AddVirtualSections(missingSections, progress, cancellationToken);
 	}
+
+	#region Buffers I/O
+	/// <summary>
+	/// Reads the contents of an <see cref="IIonData" /> section to a <see cref="ReadOnlySequence{T}" /> instance.
+	/// This supports collections longer than the maximum length of a C# array and allows slicing by long values
+	/// instead of by int.
+	/// </summary>
+	/// <remarks>
+	/// Combined with other extension methods in this package, this can dramatically simplify working with section
+	/// data while supporting ion counts that potentially exceed the maximum size of standard C# arrays.
+	/// </remarks>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="ionData"></param>
+	/// <param name="sectionName"></param>
+	/// <returns></returns>
+	public static ReadOnlySequence<T> ReadSection<T>(this IIonData ionData, string sectionName) where T : unmanaged
+	{
+		// Does not exist
+		if (!ionData.Sections.ContainsKey(sectionName))
+			return ReadOnlySequence<T>.Empty;
+
+		return ionData.CreateSectionDataEnumerable(sectionName)
+			.Select(chunk => chunk.ReadSectionData<T>(sectionName))
+			.AsReadOnlySequence();
+	}
+
+	/// <summary>
+	/// Writes the contents of a <see cref="ReadOnlySequence{T}" /> instance to an <see cref="IIonData" /> section.
+	/// This supports collections longer than the maximum length of a C# array.
+	/// </summary>
+	/// <remarks>
+	/// Combined with other extension methods in this package, this can dramatically simplify working with section
+	/// data while supporting ion counts that potentially exceed the maximum size of standard C# arrays.
+	/// </remarks>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="ionData"></param>
+	/// <param name="sectionName"></param>
+	/// <param name="data"></param>
+	/// <param name="sectionDefinition"></param>
+	/// <returns></returns>
+	/// <exception cref="InvalidOperationException"></exception>
+	public static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlySequence<T> data, IonDataSectionDefinition? sectionDefinition = null)
+		where T : unmanaged
+	{
+		// If not already exists, create section
+		if (!ionData.Sections.ContainsKey(sectionName))
+		{
+			if (sectionDefinition is null)
+				throw new InvalidOperationException($"Section does not exist and {nameof(sectionDefinition)} is null");
+			ionData.AddVirtualSection(
+				sectionDefinition.Name,
+				sectionDefinition.Type,
+				sectionDefinition.Unit,
+				sectionDefinition.ValuePerRecord);
+		}
+
+		long chunkOffset = 0L;
+		foreach (var chunk in ionData.CreateSectionDataEnumerable(sectionName))
+		{
+			var writeSlice = data.Slice(chunkOffset, chunk.Length);
+			if (writeSlice.IsSingleSegment)
+			{
+				chunk.WriteSectionData<T>(sectionName, writeSlice.First);
+
+			}
+			else
+			{
+				using MemoryOwner<T> buffer = MemoryOwner<T>.Allocate(chunk.Length);
+				int bufferIndex = 0;
+				foreach (var segment in writeSlice)
+				{
+					segment.CopyTo(buffer.Memory[bufferIndex..(bufferIndex + segment.Length)]);
+					bufferIndex += segment.Length;
+				}
+				chunk.WriteSectionData<T>(sectionName, buffer.Memory);
+			}
+			chunkOffset += chunk.Length;
+		}
+
+		return true;
+	}
+	#endregion
+
+	#region Stream I/O
+	/// <summary>
+	/// Write the contents of a <see cref="Stream" /> instance to a specified section by name.
+	/// If the section does not exits, then the optional <see cref="IonDataSectionDefinition" /> instance is used to add a new virtual data section.
+	/// If both the section does not exist and no section definition is not provided, then an <see cref="InvalidOperationException"/> will be thrown for the 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="stream">Stream source to write to <see cref="IIonData" /> section. Assume stream is the proper size for writing to the section.</param>
+	/// <param name="ionData"></param>
+	/// <param name="sectionName"></param>
+	/// <param name="sectionDefinition"></param>
+	/// <exception cref="InvalidOperationException">Section does not currently exist in and no section definition was given</exception>
+	/// <exception cref="InvalidOperationException">Stream size was not the expected length required to write the full ion data section</exception>
+	/// <exception cref="ArgumentException">Input stream was not readable</exception>
+	public static void WriteStreamToSection<T>(this IIonData ionData, string sectionName, Stream stream, IonDataSectionDefinition? sectionDefinition = null) where T : unmanaged
+	{
+		if (!stream.CanRead) throw new ArgumentException("Stream must be readable", nameof(stream));
+
+		ionData.WriteSection(sectionName, ReadAsEnumerableReadOnlyMemory().AsReadOnlySequence(), sectionDefinition);
+
+		// Stream is read and returns in enumerable to take advantage of conversion to ReadOnlySequence method
+		IEnumerable<ReadOnlyMemory<T>> ReadAsEnumerableReadOnlyMemory()
+		{
+			foreach (var chunk in ionData.CreateSectionDataEnumerable())
+			{
+				using var buffer = MemoryOwner<T>.Allocate(chunk.Length);
+				var bytesBuffer = MemoryMarshal.AsBytes(buffer.Span);
+				if (stream.Read(bytesBuffer) != bytesBuffer.Length)
+					throw new InvalidOperationException("Stream size must be the correct length to write to ion data section");
+				yield return buffer.Memory;
+			}
+		}
+	}
+
+	/// <inheritdoc cref="WriteStreamToSection{T}"/>
+	/// <remarks>
+	/// Usually the generic method would call a non-generic method instead of reflection to do the opposite.
+	/// In this case there should be an unmanaged type constraint on the System.RuntimeType, and that can only be
+	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
+	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
+	/// </remarks>
+	public static void WriteStreamToSection(this IIonData ionData, string sectionName, Type type, Stream stream, IonDataSectionDefinition? sectionDefinition = null)
+	{
+		MethodInfo methodInfo;
+		try
+		{
+			methodInfo = typeof(IonDataExtensions)
+				.GetMethods()
+				.Single(x => x.IsGenericMethod && x.Name == nameof(WriteStreamToSection))
+				.MakeGenericMethod(type);
+		}
+		catch (ArgumentException ex)
+		{
+			throw new ArgumentException("RuntimeType does not satisfy the required generic type constraints", nameof(type), ex);
+		}
+		methodInfo.Invoke(null, new object?[] { ionData, sectionName, stream, sectionDefinition });
+	}
+
+	/// <summary>
+	/// Writes the contents of the <see cref="IIonData" /> section by name to the provided <see cref="Stream"/> open for writing.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="ionData"></param>
+	/// <param name="sectionName"></param>
+	/// <param name="stream"></param>
+	/// <exception cref="ArgumentException">Stream is not writable</exception>
+	public static void WriteSectionToStream<T>(this IIonData ionData, string sectionName, Stream stream) where T : unmanaged
+	{
+		if (!stream.CanWrite) throw new ArgumentException("Stream must be writable", nameof(stream));
+		var sequence = ionData.ReadSection<T>(sectionName);
+		foreach (var memory in sequence)
+		{
+			var bytesBuffer = MemoryMarshal.AsBytes(memory.Span);
+			stream.Write(bytesBuffer);
+		}
+	}
+
+	/// <inheritdoc cref="WriteSectionToStream{T}"/>
+	/// <remarks>
+	/// Usually the generic method would call a non-generic method instead of reflection to do the opposite.
+	/// In this case there should be an unmanaged type constraint on the System.RuntimeType, and that can only be
+	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
+	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
+	/// </remarks>
+	public static void WriteSectionToStream(this IIonData ionData, string sectionName, Type type, Stream stream)
+	{
+		MethodInfo methodInfo;
+		try
+		{
+			methodInfo = typeof(IonDataExtensions)
+				.GetMethods()
+				.Single(x => x.IsGenericMethod && x.Name == nameof(WriteSectionToStream))
+				.MakeGenericMethod(type);
+		}
+		catch (ArgumentException ex)
+		{
+			throw new ArgumentException("RuntimeType does not satisfy the required generic type constraints", nameof(type), ex);
+		}
+		methodInfo.Invoke(null, new object?[] { ionData, sectionName, stream });
+	}
+	#endregion
 }
