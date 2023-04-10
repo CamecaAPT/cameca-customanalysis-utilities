@@ -61,7 +61,7 @@ public class ButtonOverlayControl : ContentControl
 					.AppendChildFefExt(new FrameworkElementFactory(typeof(Button))
 						.SetValueFefExt(Button.ContentProperty, new TemplateBindingExtension(ButtonOverlayControl.ButtonContentProperty))
 						.SetValueFefExt(Button.VerticalAlignmentProperty, VerticalAlignment.Center)
-						.SetValueFefExt(Button.HorizontalAlignmentProperty, VerticalAlignment.Center)
+						.SetValueFefExt(Button.HorizontalAlignmentProperty, HorizontalAlignment.Center)
 						.SetValueFefExt(Button.PaddingProperty, new Thickness(10d))
 						.SetBindingFefExt(ButtonBase.CommandProperty, new Binding
 						{
