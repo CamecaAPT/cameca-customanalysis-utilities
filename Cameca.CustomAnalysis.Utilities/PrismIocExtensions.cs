@@ -18,6 +18,7 @@ public static class PrismIocExtensions
 		bool registerStandardBaseClasses = false;
 		bool registerDialogs = false;
 		bool registerLegacy = false;
+		bool registerPersistedIonDataSections = false;
 
 		if (optionsInstance.UseBaseClasses)
 		{
@@ -32,6 +33,10 @@ public static class PrismIocExtensions
 		if (optionsInstance.UseDialogs)
 		{
 			registerDialogs = true;
+		}
+		if (optionsInstance.UsePersistedIonDataSection)
+		{
+			registerPersistedIonDataSections = true;
 		}
 #pragma warning disable CS0618
 		// Disable obsolete warning for implementation of obsolete features
@@ -65,6 +70,11 @@ public static class PrismIocExtensions
 		if (registerLegacy)
 		{
 			containerRegistry.Register<IViewBuilder, ViewBuilder>();
+		}
+		if (registerPersistedIonDataSections)
+		{
+			containerRegistry.RegisterSingleton<IIonDataSectionPersistenceManager, IonDataSectionPersistencePersistenceManager>();
+			containerRegistry.Register<IIonDataSectionWriter, IndividualFilesIonDataSectionWriter>();
 		}
 	}
 
