@@ -14,6 +14,12 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public static class IonDataExtensions
 {
+	/// <summary>
+	/// Wraps the <see cref="IIonData.CreateSectionDataEnumerator" /> method to return an enumerable for easier use in foreach loops.
+	/// </summary>
+	/// <param name="ionData"></param>
+	/// <param name="sections"></param>
+	/// <returns></returns>
 	public static IEnumerable<IChunkState> CreateSectionDataEnumerable(this IIonData ionData, params string[] sections)
 	{
 		var enumerator = ionData.CreateSectionDataEnumerator(sections);
@@ -23,10 +29,48 @@ public static class IonDataExtensions
 		}
 	}
 
+	#region IIonDataProvider Extensions
 	public static async Task<IIonData?> GetIonData(this IIonDataProvider ionDataProvider, Guid nodeId, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
 	{
 		return ionDataProvider.Resolve(nodeId) is { } resolver ? await resolver.GetIonData(progress, cancellationToken) : null;
 	}
+
+	public static IIonData? GetResolvedIonData(this IIonDataProvider ionDataProvider, Guid nodeId)
+	{
+		return ionDataProvider.Resolve(nodeId)?.GetValidIonData();
+	}
+	public static async Task<IIonData?> GetOwnerIonData(this IIonDataProvider ionDataProvider, Guid nodeId, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+	{
+		return ionDataProvider.Resolve(nodeId) is { OwnerNodeId: { } ownerNodeId }
+			? await ionDataProvider.GetIonData(ownerNodeId, progress, cancellationToken)
+			: null;
+	}
+
+	public static IIonData? GetResolvedOwnerIonData(this IIonDataProvider ionDataProvider, Guid nodeId)
+	{
+		return ionDataProvider.Resolve(nodeId) is { OwnerNodeId: { } ownerNodeId }
+			? ionDataProvider.GetResolvedIonData(ownerNodeId)
+			: null;
+	}
+
+	public static IIonData? GetResolvedRootIonData(this IIonDataProvider ionDataProvider, Guid nodeId)
+	{
+		var rootNodeId = GetRootIonDataNodeId(ionDataProvider, nodeId);
+		return ionDataProvider.GetResolvedIonData(rootNodeId);
+	}
+
+    private static Guid GetRootIonDataNodeId(IIonDataProvider ionDataProvider, Guid nodeId)
+    {
+        Guid nodeIdPtr = nodeId;
+        Guid? ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
+        while (ownerNodeId.HasValue && ownerNodeId.Value != Guid.Empty)
+        {
+            nodeIdPtr = ownerNodeId.Value;
+            ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
+        }
+        return nodeIdPtr;
+    }
+	#endregion
 
 	/// <summary>
 	/// Checks <see cref="IIonData"/> for all given sections. If present, returns <c>true</c>.
