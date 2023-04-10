@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Cameca.CustomAnalysis.Interface;
+﻿using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
