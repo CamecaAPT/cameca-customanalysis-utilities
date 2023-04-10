@@ -1,7 +1,6 @@
 ﻿using Cameca.CustomAnalysis.Interface;
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Prism.Commands;
-using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
