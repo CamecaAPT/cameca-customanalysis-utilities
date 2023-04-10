@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
@@ -55,10 +56,16 @@ internal static class PresentationFrameworkFluentBuilderExtensions
 		return factory;
 	}
 
-	/// <inheritdoc cref="FrameworkElementFactory.SetBinding(DependencyProperty, BindingBase)"/>
-	public static T SealDataTemplate<T>(this T dataTemplate) where T : DataTemplate
+	/// <inheritdoc cref="FrameworkTemplate.Seal"/>
+	public static T SealFrameworkTemplate<T>(this T frameworkTemplate) where T : FrameworkTemplate
 	{
-		dataTemplate.Seal();
-		return dataTemplate;
+		frameworkTemplate.Seal();
+		return frameworkTemplate;
+	}
+
+	public static FrameworkElementFactory AppendChildFefExt(this FrameworkElementFactory factory, FrameworkElementFactory child)
+	{
+		factory.AppendChild(child);
+		return factory;
 	}
 }
