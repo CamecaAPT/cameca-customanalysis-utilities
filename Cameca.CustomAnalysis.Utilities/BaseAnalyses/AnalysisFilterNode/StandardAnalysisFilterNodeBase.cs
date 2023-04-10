@@ -1,21 +1,22 @@
 ﻿using Cameca.CustomAnalysis.Interface;
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Prism.Commands;
+using System;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class StandardDataFilterNodeBase : StandardDataFilterNodeBase<IStandardDataFilterNodeBaseServices>
+public abstract class StandardAnalysisFilterNodeBase : StandardAnalysisFilterNodeBase<IStandardAnalysisFilterNodeBaseServices>
 {
-	protected StandardDataFilterNodeBase(IStandardDataFilterNodeBaseServices services) : base(services)
-	{
-	}
+	protected StandardAnalysisFilterNodeBase(IStandardAnalysisFilterNodeBaseServices services) : base(services) { }
+
 }
 
-
-public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase<TServices>
-	where TServices : IStandardDataFilterNodeBaseServices
+public abstract class StandardAnalysisFilterNodeBase<TServices> : AnalysisFilterNodeBase<TServices>
+	where TServices : IStandardAnalysisFilterNodeBaseServices
 {
-	protected StandardDataFilterNodeBase(TServices services) : base(services) { }
+	protected StandardAnalysisFilterNodeBase(TServices services) : base(services)
+	{
+	}
 
 	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
@@ -45,4 +46,10 @@ public abstract class StandardDataFilterNodeBase<TServices> : DataFilterNodeBase
 
 	protected sealed override bool InstanceIdFilter(INodeTargetEvent targetEventArgs)
 		=> base.InstanceIdFilter(targetEventArgs);
+
+	protected sealed override bool MatchExistingViewPredicate(Type targetType, object viewModel)
+		=> base.MatchExistingViewPredicate(targetType, viewModel);
+
+	protected sealed override void RequestDisplayViews()
+		=> base.RequestDisplayViews();
 }

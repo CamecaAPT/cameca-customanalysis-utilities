@@ -18,6 +18,7 @@ public static class PrismIocExtensions
 		bool registerStandardBaseClasses = false;
 		bool registerDialogs = false;
 		bool registerLegacy = false;
+		bool registerPersistedIonDataSections = false;
 
 		if (optionsInstance.UseBaseClasses)
 		{
@@ -32,6 +33,10 @@ public static class PrismIocExtensions
 		if (optionsInstance.UseDialogs)
 		{
 			registerDialogs = true;
+		}
+		if (optionsInstance.UsePersistedIonDataSection)
+		{
+			registerPersistedIonDataSections = true;
 		}
 #pragma warning disable CS0618
 		// Disable obsolete warning for implementation of obsolete features
@@ -52,11 +57,13 @@ public static class PrismIocExtensions
 			containerRegistry.Register<IAnalysisNodeBaseServices, AnalysisNodeBaseServices>();
 			containerRegistry.Register<IDataFilterNodeBaseServices, DataFilterNodeBaseServices>();
 			containerRegistry.Register<IAnalysisViewModelBaseServices, AnalysisViewModelBaseServices>();
+			containerRegistry.Register<IAnalysisFilterNodeBaseServices, AnalysisFilterNodeBaseServices>();
 		}
 		if (registerStandardBaseClasses)
 		{
 			containerRegistry.Register<IStandardAnalysisNodeBaseServices, StandardAnalysisNodeBaseServices>();
 			containerRegistry.Register<IStandardDataFilterNodeBaseServices, StandardDataFilterNodeBaseServices>();
+			containerRegistry.Register<IStandardAnalysisFilterNodeBaseServices, StandardAnalysisFilterNodeBaseServices>();
 		}
 		if (registerDialogs)
 		{
@@ -65,6 +72,11 @@ public static class PrismIocExtensions
 		if (registerLegacy)
 		{
 			containerRegistry.Register<IViewBuilder, ViewBuilder>();
+		}
+		if (registerPersistedIonDataSections)
+		{
+			containerRegistry.RegisterSingleton<IIonDataSectionPersistenceManager, IonDataSectionPersistencePersistenceManager>();
+			containerRegistry.Register<IIonDataSectionWriter, IndividualFilesIonDataSectionWriter>();
 		}
 	}
 
