@@ -54,7 +54,12 @@ internal class ViewBuilder : IViewBuilder
 
 	public void AddText(string title, string text)
 	{
-		_tabViewModelDefinitions.Add(new TextTabViewModel(title, text));
+		_tabViewModelDefinitions.Add(new TextTabViewModel(title, text, new TextBoxOptions()));
+	}
+
+	public void AddText(string title, string text, TextBoxOptions options)
+	{
+		_tabViewModelDefinitions.Add(new TextTabViewModel(title, text, options));
 	}
 
 	public IEnumerable<object> Build()
