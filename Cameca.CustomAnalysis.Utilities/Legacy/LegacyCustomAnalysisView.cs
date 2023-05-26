@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using Cameca.Extensions.Controls;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
@@ -111,6 +112,7 @@ public class LegacyCustomAnalysisView : UserControl
 							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Stretch)
 							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Stretch)
 							.SetValueFefExt(TextBoxBase.IsReadOnlyProperty, true)
+							.SetValueFefExt(BackgroundProperty, Colors.Transparent)
 							.SetBindingFefExt(TextBoxBase.HorizontalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.HorizontalScrollBarVisibility)) { Mode = BindingMode.OneTime })
 							.SetBindingFefExt(TextBoxBase.VerticalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.VerticalScrollBarVisibility)) { Mode = BindingMode.OneTime })
 							.SetBindingFefExt(TextBox.TextWrappingProperty, new Binding(nameof(TextTabViewModel.TextWrapping)) { Mode = BindingMode.OneTime })
