@@ -9,6 +9,7 @@ public interface IViewBuilder
 	IChart3DBuilder AddChart3D(string title);
 	void AddTable(string title, IEnumerable rows);
 	void AddText(string title, string text);
+	void AddText(string title, string text, TextBoxOptions options) => AddText(title, text);
 	void AddHistogram2D(string title, string xAxisLabel, string yAxisLabel, Histogram2DContext histogram2DContext);
 	IEnumerable<object> Build();
 }

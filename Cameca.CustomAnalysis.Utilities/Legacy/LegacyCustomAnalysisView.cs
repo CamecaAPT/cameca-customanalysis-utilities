@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using Cameca.Extensions.Controls;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
@@ -106,11 +107,17 @@ public class LegacyCustomAnalysisView : UserControl
 					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(TextTabViewModel))] = new DataTemplate(typeof(TextTabViewModel))
 					{
-						VisualTree = new FrameworkElementFactory(typeof(TextBlock))
-							.SetBindingFefExt(TextBlock.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneWay })
-							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Top)
-							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Left)
-							.SetValueFefExt(TextBlock.TextWrappingProperty, TextWrapping.WrapWithOverflow),
+						VisualTree = new FrameworkElementFactory(typeof(TextBox))
+							.SetBindingFefExt(TextBox.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneTime })
+							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Stretch)
+							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Stretch)
+							.SetValueFefExt(TextBoxBase.IsReadOnlyProperty, true)
+							.SetValueFefExt(BackgroundProperty, new SolidColorBrush(Colors.Transparent))
+							.SetBindingFefExt(TextBoxBase.HorizontalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.HorizontalScrollBarVisibility)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(TextBoxBase.VerticalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.VerticalScrollBarVisibility)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(TextBox.TextWrappingProperty, new Binding(nameof(TextTabViewModel.TextWrapping)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(FontFamilyProperty, new Binding(nameof(TextTabViewModel.FontFamily)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(FontSizeProperty, new Binding(nameof(TextTabViewModel.FontSize)) { Mode = BindingMode.OneTime }),
 					}.SealFrameworkTemplate(),
 				},
 			}.SetGridColumn(2)
