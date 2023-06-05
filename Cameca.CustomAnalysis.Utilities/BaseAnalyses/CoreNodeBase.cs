@@ -11,8 +11,8 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public abstract class CoreNodeBase<TServices> : IDisposable where TServices : ICoreNodeServices
 {
-	protected INodeDataState? DataState { get; private set; }
-	protected ICanSaveState? CanSaveState { get; private set; }
+	public INodeDataState? DataState { get; private set; }
+	public ICanSaveState? CanSaveState { get; private set; }
 
 	protected bool DataStateIsValid
 	{

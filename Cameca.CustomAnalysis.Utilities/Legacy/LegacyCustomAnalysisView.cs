@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Printing;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using Cameca.Extensions.Controls;
-using Prism.Mvvm;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
@@ -90,35 +84,41 @@ public class LegacyCustomAnalysisView : UserControl
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Chart3D))
 							.SetBindingFefExt(Chart3D.DataSourceProperty, new Binding(nameof(Chart3DTabViewModel.RenderData))),
-					}.SealDataTemplate(),
+					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(Chart2DTabViewModel))] = new DataTemplate(typeof(Chart2DTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Chart2D))
 							.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Chart2DTabViewModel.RenderData)))
 							.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Chart2DTabViewModel.XAxis)))
 							.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Chart2DTabViewModel.YAxis))),
-					}.SealDataTemplate(),
+					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(Histogram2DTabViewModel))] = new DataTemplate(typeof(Histogram2DTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Histogram2D))
 							.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Histogram2DTabViewModel.RenderData)))
 							.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Histogram2DTabViewModel.XAxis)))
 							.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Histogram2DTabViewModel.YAxis))),
-					}.SealDataTemplate(),
+					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(TableTabViewModel))] = new DataTemplate(typeof(TableTabViewModel))
 					{
 						VisualTree = new FrameworkElementFactory(typeof(Table))
 							.SetBindingFefExt(Table.ItemsSourceProperty, new Binding(nameof(TableTabViewModel.Items)))
 							.SetValueFefExt(Table.AutoWidthProperty, true),
-					}.SealDataTemplate(),
+					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(TextTabViewModel))] = new DataTemplate(typeof(TextTabViewModel))
 					{
-						VisualTree = new FrameworkElementFactory(typeof(TextBlock))
-							.SetBindingFefExt(TextBlock.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneWay })
-							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Top)
-							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Left)
-							.SetValueFefExt(TextBlock.TextWrappingProperty, TextWrapping.WrapWithOverflow),
-					}.SealDataTemplate(),
+						VisualTree = new FrameworkElementFactory(typeof(TextBox))
+							.SetBindingFefExt(TextBox.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneTime })
+							.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Stretch)
+							.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Stretch)
+							.SetValueFefExt(TextBoxBase.IsReadOnlyProperty, true)
+							.SetValueFefExt(BackgroundProperty, new SolidColorBrush(Colors.Transparent))
+							.SetBindingFefExt(TextBoxBase.HorizontalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.HorizontalScrollBarVisibility)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(TextBoxBase.VerticalScrollBarVisibilityProperty, new Binding(nameof(TextTabViewModel.VerticalScrollBarVisibility)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(TextBox.TextWrappingProperty, new Binding(nameof(TextTabViewModel.TextWrapping)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(FontFamilyProperty, new Binding(nameof(TextTabViewModel.FontFamily)) { Mode = BindingMode.OneTime })
+							.SetBindingFefExt(FontSizeProperty, new Binding(nameof(TextTabViewModel.FontSize)) { Mode = BindingMode.OneTime }),
+					}.SealFrameworkTemplate(),
 				},
 			}.SetGridColumn(2)
 				.SetBindingEx(ItemsControl.ItemsSourceProperty, LegacyCustomAnalysisViewModelTabs)
