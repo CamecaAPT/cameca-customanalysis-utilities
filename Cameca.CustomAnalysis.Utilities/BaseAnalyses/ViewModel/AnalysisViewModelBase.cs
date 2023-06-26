@@ -1,6 +1,4 @@
 ﻿using Cameca.CustomAnalysis.Interface;
-using System.Xml.Linq;
-using Cameca.CustomAnalysis.Utilities.BaseAnalyses;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
