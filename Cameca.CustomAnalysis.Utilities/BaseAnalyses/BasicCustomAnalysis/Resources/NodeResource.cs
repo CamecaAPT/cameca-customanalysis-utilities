@@ -23,6 +23,9 @@ public class NodeResource : INodeResource
 	public string TypeId => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().TypeId;
 	public ImageSource? Icon => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Icon;
 
+	public IGeometricRegion? Region =>
+		(_nodeInfoProvider.Resolve(Id).ThrowIfUnresolved() as IGeometricRoiNodeInfo)?.Region;
+
 	public INodeResource? Parent =>
 		_nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Parent is { } parentId
 			? AnalysisSetNodeResources.GetOrCreate(parentId)

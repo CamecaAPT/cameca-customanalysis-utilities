@@ -14,6 +14,7 @@ public interface INodeResource
 	string Title { get; }
 	string TypeId { get; }
 	ImageSource? Icon { get; }
+	IGeometricRegion? Region { get; }
 	INodeResource? Parent { get; }
 	IEnumerable<INodeResource> Children { get; }
 	IMassSpectrumRangeManager RangeManager { get; }
