@@ -24,7 +24,7 @@ public class LegacyCustomAnalysisView : UserControl
 		Content = BuildContent();
 	}
 
-	private ResourceDictionary BuildResources() => new ResourceDictionary
+	private static ResourceDictionary BuildResources() => new ResourceDictionary
 	{
 		[typeof(TabItem)] = new Style(typeof(TabItem))
 		{
@@ -35,7 +35,7 @@ public class LegacyCustomAnalysisView : UserControl
 		},
 	};
 
-	private object BuildContent() => new Grid
+	private static object BuildContent() => new Grid
 	{
 		ColumnDefinitions =
 		{
