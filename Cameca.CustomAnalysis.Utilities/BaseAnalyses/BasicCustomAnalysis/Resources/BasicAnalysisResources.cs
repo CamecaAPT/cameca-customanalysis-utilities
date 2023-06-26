@@ -16,7 +16,6 @@ public class BasicAnalysisResources : NodeResource, IResources
 	private readonly IMainChartProvider _mainChartProvider;
 	private readonly INodeVisibilityControlProvider _nodeVisibilityControlProvider;
 	private readonly IAnalysisSetInfoProvider _analysisSetInfoProvider;
-	private readonly AnalysisSetNodeResources _analysisSetNodeResources;
 	private readonly INodeDataStateProvider _nodeDataStateProvider;
 	private readonly ICanSaveStateProvider _canSaveStateProvider;
 	private readonly INodeMenuFactoryProvider _nodeMenuFactoryProvider;
@@ -43,7 +42,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		get
 		{
 			var selectedNodeId = _analysisSetInfoProvider.Resolve(Id).ThrowIfUnresolved().SelectedNodeId;
-			return _analysisSetNodeResources.GetOrCreate(selectedNodeId);
+			return AnalysisSetNodeResources.GetOrCreate(selectedNodeId);
 		}
 	}
 	public IViewBuilder ViewBuilder { get; }
@@ -52,7 +51,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		get
 		{
 			var rootNodeId = _nodeInfoProvider.GetRootNodeContainer(Id).NodeId;
-			return _analysisSetNodeResources.GetOrCreate(rootNodeId);
+			return AnalysisSetNodeResources.GetOrCreate(rootNodeId);
 		}
 	}
 	public IEventAggregator Events { get; }
@@ -74,7 +73,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		var rootId = TopLevelNode.Id;
 		foreach (var id in _nodeInfoProvider.IterateNodeContainers(rootId).Select(x => x.NodeId))
 		{
-			yield return _analysisSetNodeResources.GetOrCreate(id);
+			yield return AnalysisSetNodeResources.GetOrCreate(id);
 		}
 	}
 
@@ -103,7 +102,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		_mainChartProvider = mainChartProvider;
 		_nodeVisibilityControlProvider = nodeVisibilityControlProvider;
 		_analysisSetInfoProvider = analysisSetInfoProvider;
-		_analysisSetNodeResources = analysisSetNodeResources;
+		AnalysisSetNodeResourcesBacking.Value = analysisSetNodeResources;
 		_nodeDataStateProvider = nodeDataStateProvider;
 		_canSaveStateProvider = canSaveStateProvider;
 		_nodeMenuFactoryProvider = nodeMenuFactoryProvider;
