@@ -25,13 +25,38 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegateAsync;
-			dataFilterInterceptor.IsInverted = IsInverted;
 		}
 	}
 
+	[Obsolete("Use FilterProgressMessage")]
 	protected virtual string? FilterCalculationMessage => null;
 
+	[Obsolete("Use FilterIsInverted")]
 	protected virtual bool IsInverted => false;
+
+	protected string? FilterProgressMessage
+	{
+		get => Services.DataFilterProvider.Resolve(InstanceId)?.FilterProgressMessage;
+		set
+		{
+			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			{
+				dataFilterInterceptor.FilterProgressMessage = value;
+			}
+		}
+	}
+
+	protected bool FilterIsInverted
+	{
+		get => Services.DataFilterProvider.Resolve(InstanceId)?.IsInverted ?? false;
+		set
+		{
+			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			{
+				dataFilterInterceptor.IsInverted = value;
+			}
+		}
+	}
 
 #pragma warning disable CS1998
 	protected virtual async IAsyncEnumerable<ReadOnlyMemory<ulong>> GetIndicesDelegateAsync(IIonData ownerIonData, IProgress<double>? progress, [EnumeratorCancellation]CancellationToken token)
@@ -47,4 +72,6 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 	{
 		yield return ReadOnlyMemory<ulong>.Empty;
 	}
+
+	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(InstanceId)?.FilterDataChanged();
 }
