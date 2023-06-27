@@ -22,9 +22,12 @@ public class BasicAnalysisResources : NodeResource, IResources
 	private readonly IIonDisplayInfoProvider _ionDisplayInfoProvider;
 	private readonly IReconstructionSectionsProvider _reconstructionSectionsProvider;
 	private readonly IProgressDialogProvider _progressDialogProvider;
+	private readonly IExperimentInfoProvider _experimentInfoProvider;
 
 
 	public string AnalysisSetTitle => _analysisSetInfoProvider.Resolve(Id).ThrowIfUnresolved().Title;
+
+	public string? ExperimentFileName => _experimentInfoProvider.Resolve(Id)?.ExperimentFileName;
 
 	/// <inheritdoc />
 	public async Task<bool> EnsureRequiredSectionsAvailable(IIonData ionData, IEnumerable<string> requiredSections, IProgress<double>? progress = null,
@@ -58,6 +61,8 @@ public class BasicAnalysisResources : NodeResource, IResources
 	public IChart3D MainChart => _mainChartProvider.Resolve(Id).ThrowIfUnresolved();
 	public IRenderDataFactory ChartObjects { get; }
 	public IDialogService Dialog { get; }
+	public IExperimentInfo? ExperimentInfo => _experimentInfoProvider.Resolve(Id)?.ExperimentInfo;
+	public void RefreshExperimentInfo() => _experimentInfoProvider.Resolve(Id)?.Refresh();
 	public IColorMapFactory ColorMap { get; }
 	public INodeVisibilityControl Visibility => _nodeVisibilityControlProvider.Resolve(Id).ThrowIfUnresolved();
 	public INodeMenuFactory MenuFactory => _nodeMenuFactoryProvider.Resolve(Id).ThrowIfUnresolved();
@@ -96,7 +101,8 @@ public class BasicAnalysisResources : NodeResource, IResources
 		IColorMapFactory colorMapFactory,
 		IRenderDataFactory renderDataFactory,
 		IViewBuilder viewBuilder,
-		IProgressDialogProvider progressDialogProvider)
+		IProgressDialogProvider progressDialogProvider,
+		IExperimentInfoProvider experimentInfoProvider)
 		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider)
 	{
 		_mainChartProvider = mainChartProvider;
@@ -109,6 +115,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		_ionDisplayInfoProvider = ionDisplayInfoProvider;
 		_reconstructionSectionsProvider = reconstructionSectionsProvider;
 		_progressDialogProvider = progressDialogProvider;
+		_experimentInfoProvider = experimentInfoProvider;
 		Dialog = dialogService;
 		ColorMap = colorMapFactory;
 		ChartObjects = renderDataFactory;

@@ -27,6 +27,10 @@ public interface IResources : INodeResource
 	Color GetIonColor(IIonTypeInfo ionTypeInfo);
 	IEnumerable<INodeResource> AnalysisTreeNodes();
 	IDialogService Dialog { get; }
+	IExperimentInfo? ExperimentInfo { get; }
+	void RefreshExperimentInfo();
+	string? ExperimentFileName { get; }
+
 
 	/// <inheritdoc cref="IonDataExtensions.EnsureSectionsAvailable"/>
 	Task<bool> EnsureRequiredSectionsAvailable(IIonData ionData, IEnumerable<string> requiredSections,
