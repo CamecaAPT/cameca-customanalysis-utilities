@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,6 +20,7 @@ public abstract class BasicCustomAnalysisNodeBase<TAnalysis, TProperties> : Stan
 
 	protected IAnalysis<TProperties> Analysis { get; }
 
+	protected bool UseProgress { get; set; } = true;
 
 	protected BasicCustomAnalysisNodeBase(IStandardAnalysisFilterNodeBaseServices services, TAnalysis analysis, Func<IResources> resourceFactory) : base(services)
 	{
@@ -81,14 +83,7 @@ public abstract class BasicCustomAnalysisNodeBase<TAnalysis, TProperties> : Stan
 			}
 
 			// Try to call async update with progress dialog if available
-			if (Services.ProgressDialogProvider.Resolve(InstanceId) is { } progressDialog)
-			{
-				return await progressDialog.ShowDialog(Analysis.UpdateProgressText, CallAnalysisUpdate);
-			}
-			else
-			{
-				return await CallAnalysisUpdate(null, default);
-			}
+			return await CallAnalysisUpdate();
 		}
 		catch (OperationCanceledException)
 		{
@@ -104,13 +99,22 @@ public abstract class BasicCustomAnalysisNodeBase<TAnalysis, TProperties> : Stan
 		return null;
 	}
 
-	public async Task<object?> CallAnalysisUpdate(IProgress<double>? progress, CancellationToken cancellationToken)
+	public async Task<object?> CallAnalysisUpdate()
 	{
-		if (await Services.IonDataProvider.GetOwnerIonData(InstanceId, progress, cancellationToken) is { } ionData)
+		if (await Services.IonDataProvider.GetOwnerIonData(InstanceId) is not { } ionData)
 		{
-			return await Analysis.Update(ionData, ResolvedProperties, CreateResources(), progress, cancellationToken);
+			return null;
 		}
-		return null;
+
+		if (UseProgress && Services.ProgressDialogProvider.Resolve(InstanceId) is { } progressDialog)
+		{
+			return await progressDialog.ShowDialog(Analysis.UpdateProgressText,
+				(p, t) => Analysis.Update(ionData, ResolvedProperties, CreateResources(), p, t));
+		}
+		else
+		{
+			return await Analysis.Update(ionData, ResolvedProperties, CreateResources(), null, default);
+		}
 	}
 
 	private void PropertiesObjectOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
