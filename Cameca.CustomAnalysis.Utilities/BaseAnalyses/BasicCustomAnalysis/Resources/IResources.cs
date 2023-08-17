@@ -10,6 +10,26 @@ using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
+public class ResourceFactory
+{
+	private readonly Func<IResources> _resourceFactory;
+
+	public ResourceFactory(Func<IResources> resourceFactory)
+	{
+		this._resourceFactory = resourceFactory;
+	}
+
+	public IResources CreateResource(Guid nodeId)
+	{
+		var resources = _resourceFactory();
+		if (resources is BasicAnalysisResources basicResources)
+		{
+			basicResources.Id = nodeId;
+		}
+		return resources;
+	}
+}
+
 public interface IResources : INodeResource
 {
 	string AnalysisSetTitle { get; }

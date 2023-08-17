@@ -92,5 +92,6 @@ public static class PrismIocExtensions
 		containerRegistry.Register<NodeResource>();
 		containerRegistry.Register<AnalysisSetNodeResources>();
 		containerRegistry.Register<IResources, BasicAnalysisResources>();
+		containerRegistry.Register<ResourceFactory>();
 	}
 }
