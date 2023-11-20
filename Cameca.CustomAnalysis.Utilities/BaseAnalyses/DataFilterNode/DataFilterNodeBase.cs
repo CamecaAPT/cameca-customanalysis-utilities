@@ -22,13 +22,41 @@ public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegate;
-			dataFilterInterceptor.IsInverted = IsInverted;
 		}
 	}
 
+	[Obsolete("Use FilterProgressMessage")]
 	protected virtual string? FilterCalculationMessage => null;
 
+	[Obsolete("Use FilterIsInverted")]
 	protected virtual bool IsInverted => false;
 
+	protected string? FilterProgressMessage
+	{
+		get => Services.DataFilterProvider.Resolve(InstanceId)?.FilterProgressMessage;
+		set
+		{
+			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			{
+				dataFilterInterceptor.FilterProgressMessage = value;
+			}
+		}
+	}
+
+	protected bool FilterIsInverted
+	{
+		get => Services.DataFilterProvider.Resolve(InstanceId)?.IsInverted ?? false;
+		set
+		{
+			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			{
+				dataFilterInterceptor.IsInverted = value;
+			}
+		}
+	}
+
+
 	protected abstract IAsyncEnumerable<ReadOnlyMemory<ulong>> GetIndicesDelegate(IIonData ownerIonData, IProgress<double>? progress, CancellationToken token);
+
+	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(InstanceId)?.FilterDataChanged();
 }

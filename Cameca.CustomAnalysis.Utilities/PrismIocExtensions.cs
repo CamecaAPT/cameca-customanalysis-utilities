@@ -1,4 +1,5 @@
 ﻿using System;
+using Cameca.CustomAnalysis.Utilities;
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Cameca.CustomAnalysis.Utilities.Legacy;
 using Prism.Ioc;
@@ -84,5 +85,13 @@ public static class PrismIocExtensions
 	public static void RegisterCoreServices(this IContainerRegistry containerRegistry)
 	{
 		containerRegistry.AddCustomAnalysisUtilities();
+	}
+
+	public static void RegisterBasicAnalysis(this IContainerRegistry containerRegistry)
+	{
+		containerRegistry.Register<NodeResource>();
+		containerRegistry.Register<AnalysisSetNodeResources>();
+		containerRegistry.Register<IResources, BasicAnalysisResources>();
+		containerRegistry.Register<ResourceFactory>();
 	}
 }
