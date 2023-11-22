@@ -139,7 +139,7 @@ public static class IonDataExtensions
 
 		// Add recalculated sections as virtual data sections. This only should return false at this point for
 		// exceptional circumstances (file corruption, etc)
-		return await reconstructionSections.AddVirtualSections(missingSections, progress, cancellationToken);
+		return await reconstructionSections.AddSections(missingSections, false, progress, cancellationToken);
 	}
 
 	#region Buffers I/O
@@ -190,11 +190,15 @@ public static class IonDataExtensions
 		{
 			if (sectionDefinition is null)
 				throw new InvalidOperationException($"Section does not exist and {nameof(sectionDefinition)} is null");
-			ionData.AddVirtualSection(
+			int size = Marshal.SizeOf<T>();
+			ionData.AddSection(
 				sectionDefinition.Name,
 				sectionDefinition.Type,
+				(ulong)data.Length,
+				(uint)(size * 8),
 				sectionDefinition.Unit,
-				sectionDefinition.ValuePerRecord);
+				sectionDefinition.ValuePerRecord,
+				isVirtual: !ionData.CanWrite);
 		}
 
 		long chunkOffset = 0L;
