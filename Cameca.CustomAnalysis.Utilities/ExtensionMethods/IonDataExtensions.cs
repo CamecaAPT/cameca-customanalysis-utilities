@@ -150,7 +150,7 @@ public static class IonDataExtensions
 	/// <param name="ionData"></param>
 	/// <param name="sectionName"></param>
 	/// <returns></returns>
-	public static ReadOnlySequence<T> ReadSection<T>(this IIonData ionData, string sectionName) where T : unmanaged
+	internal static ReadOnlySequence<T> ReadSection<T>(this IIonData ionData, string sectionName) where T : unmanaged
 	{
 		// Does not exist
 		if (!ionData.Sections.ContainsKey(sectionName))
@@ -176,7 +176,7 @@ public static class IonDataExtensions
 	/// <param name="sectionDefinition"></param>
 	/// <returns></returns>
 	/// <exception cref="InvalidOperationException"></exception>
-	public static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlySequence<T> data, IonDataSectionDefinition? sectionDefinition = null)
+	internal static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlySequence<T> data, IonDataSectionDefinition? sectionDefinition = null)
 		where T : unmanaged
 	{
 		// If not already exists, create section
@@ -232,7 +232,7 @@ public static class IonDataExtensions
 	/// <exception cref="InvalidOperationException">Section does not currently exist in and no section definition was given</exception>
 	/// <exception cref="InvalidOperationException">Stream size was not the expected length required to write the full ion data section</exception>
 	/// <exception cref="ArgumentException">Input stream was not readable</exception>
-	public static void WriteStreamToSection<T>(this IIonData ionData, string sectionName, Stream stream, IonDataSectionDefinition? sectionDefinition = null) where T : unmanaged
+	internal static void WriteStreamToSection<T>(this IIonData ionData, string sectionName, Stream stream, IonDataSectionDefinition? sectionDefinition = null) where T : unmanaged
 	{
 		if (!stream.CanRead) throw new ArgumentException("Stream must be readable", nameof(stream));
 
@@ -259,7 +259,7 @@ public static class IonDataExtensions
 	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
 	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
 	/// </remarks>
-	public static void WriteStreamToSection(this IIonData ionData, string sectionName, Type type, Stream stream, IonDataSectionDefinition? sectionDefinition = null)
+	internal static void WriteStreamToSection(this IIonData ionData, string sectionName, Type type, Stream stream, IonDataSectionDefinition? sectionDefinition = null)
 	{
 		MethodInfo methodInfo;
 		try
@@ -284,7 +284,7 @@ public static class IonDataExtensions
 	/// <param name="sectionName"></param>
 	/// <param name="stream"></param>
 	/// <exception cref="ArgumentException">Stream is not writable</exception>
-	public static void WriteSectionToStream<T>(this IIonData ionData, string sectionName, Stream stream) where T : unmanaged
+	internal static void WriteSectionToStream<T>(this IIonData ionData, string sectionName, Stream stream) where T : unmanaged
 	{
 		if (!stream.CanWrite) throw new ArgumentException("Stream must be writable", nameof(stream));
 		var sequence = ionData.ReadSection<T>(sectionName);
@@ -302,7 +302,7 @@ public static class IonDataExtensions
 	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
 	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
 	/// </remarks>
-	public static void WriteSectionToStream(this IIonData ionData, string sectionName, Type type, Stream stream)
+	internal static void WriteSectionToStream(this IIonData ionData, string sectionName, Type type, Stream stream)
 	{
 		MethodInfo methodInfo;
 		try
