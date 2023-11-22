@@ -22,10 +22,16 @@ public static class IonDataExtensions
 	/// <returns></returns>
 	public static IEnumerable<IChunkState> CreateSectionDataEnumerable(this IIonData ionData, params string[] sections)
 	{
-		var enumerator = ionData.CreateSectionDataEnumerator(sections);
+		using var enumerator = ionData.CreateSectionDataEnumerator(sections);
 		while (enumerator.MoveNext())
 		{
-			yield return enumerator.Current;
+			// Intended to simplify foreach loops, where we likely don't want to keep references beyond the loop.
+			// Therefore this utility will managed disposing the object for the caller.
+			// If a need exists for an enumerable that does not dispose on enumeration, that can be added seperately
+			using (enumerator.Current)
+			{
+				yield return enumerator.Current;
+			}
 		}
 	}
 
