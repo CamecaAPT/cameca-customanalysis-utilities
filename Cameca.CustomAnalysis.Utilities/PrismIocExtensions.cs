@@ -116,6 +116,6 @@ public static class PrismIocExtensions
 		containerRegistry.EnsureRegistered<IProgressDialogProvider>();
 		containerRegistry.EnsureRegistered<IReconstructionSectionsProvider>();
 		containerRegistry.EnsureRegistered<IRenderDataFactory>();
-		containerRegistry.EnsureRegistered<IViewBuilder>();
+		containerRegistry.EnsureRegistered<IViewBuilder, ViewBuilder>();
 	}
 }

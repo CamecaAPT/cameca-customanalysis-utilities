@@ -17,4 +17,13 @@ internal static class ContainerRegistryExtensions
 		}
 		return containerRegistry;
 	}
+
+	public static IContainerRegistry EnsureRegistered<TFrom, TTo>(this IContainerRegistry containerRegistry) where TTo : TFrom
+	{
+		if (!containerRegistry.IsRegistered<TFrom>())
+		{
+			containerRegistry.Register<TFrom, TTo>();
+		}
+		return containerRegistry;
+	}
 }
