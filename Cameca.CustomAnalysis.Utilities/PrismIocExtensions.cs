@@ -98,24 +98,6 @@ public static class PrismIocExtensions
 		containerRegistry.Register<IResources, BasicAnalysisResources>();
 		containerRegistry.Register<ResourceFactory>();
 		// Ensure all inner dependencies to create these objects are registered
-		containerRegistry.EnsureRegistered<IAnalysisSetInfoProvider>();
-		containerRegistry.EnsureRegistered<ICanSaveStateProvider>();
-		containerRegistry.EnsureRegistered<IColorMapFactory>();
-		containerRegistry.EnsureRegistered<IDialogService>();
-		containerRegistry.EnsureRegistered<IEventAggregator>();
-		containerRegistry.EnsureRegistered<IExperimentInfoProvider>();
-		containerRegistry.EnsureRegistered<IExportToCsvProvider>();
-		containerRegistry.EnsureRegistered<IIonDataProvider>();
-		containerRegistry.EnsureRegistered<IIonDisplayInfoProvider>();
-		containerRegistry.EnsureRegistered<IMainChartProvider>();
-		containerRegistry.EnsureRegistered<IMassSpectrumRangeManagerProvider>();
-		containerRegistry.EnsureRegistered<INodeDataStateProvider>();
-		containerRegistry.EnsureRegistered<INodeInfoProvider>();
-		containerRegistry.EnsureRegistered<INodeMenuFactoryProvider>();
-		containerRegistry.EnsureRegistered<INodeVisibilityControlProvider>();
-		containerRegistry.EnsureRegistered<IProgressDialogProvider>();
-		containerRegistry.EnsureRegistered<IReconstructionSectionsProvider>();
-		containerRegistry.EnsureRegistered<IRenderDataFactory>();
 		containerRegistry.EnsureRegistered<IViewBuilder, ViewBuilder>();
 	}
 }
