@@ -58,6 +58,20 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 		}
 	}
 
+	protected bool AllowOverrideRanges
+	{
+#pragma warning disable CS0618 // Type or member is obsolete
+		get => Services.DataFilterProvider.Resolve(InstanceId)?.AllowOverrideRanges ?? false;
+		set
+		{
+			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			{
+				dataFilterInterceptor.AllowOverrideRanges = value;
+			}
+		}
+#pragma warning restore CS0618 // Type or member is obsolete
+	}
+
 #pragma warning disable CS1998
 	protected virtual async IAsyncEnumerable<ReadOnlyMemory<ulong>> GetIndicesDelegateAsync(IIonData ownerIonData, IProgress<double>? progress, [EnumeratorCancellation]CancellationToken token)
 #pragma warning restore CS1998
