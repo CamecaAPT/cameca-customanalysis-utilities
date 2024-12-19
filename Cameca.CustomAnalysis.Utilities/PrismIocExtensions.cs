@@ -1,8 +1,12 @@
 ﻿using System;
+using Cameca.CustomAnalysis.Interface;
 using Cameca.CustomAnalysis.Utilities;
 using Cameca.CustomAnalysis.Utilities.Controls;
+using Cameca.CustomAnalysis.Utilities.ExtensionMethods;
 using Cameca.CustomAnalysis.Utilities.Legacy;
+using Prism.Events;
 using Prism.Ioc;
+using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -93,5 +97,7 @@ public static class PrismIocExtensions
 		containerRegistry.Register<AnalysisSetNodeResources>();
 		containerRegistry.Register<IResources, BasicAnalysisResources>();
 		containerRegistry.Register<ResourceFactory>();
+		// Ensure all inner dependencies to create these objects are registered
+		containerRegistry.EnsureRegistered<IViewBuilder, ViewBuilder>();
 	}
 }
