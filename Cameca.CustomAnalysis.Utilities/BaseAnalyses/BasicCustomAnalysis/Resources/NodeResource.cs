@@ -14,6 +14,8 @@ public class NodeResource : INodeResource
 	private readonly IExportToCsvProvider _exportToCsvProvider;
 	private readonly IIonDataProvider _ionDataProvider;
 	private readonly IMassSpectrumRangeManagerProvider _massSpectrumRangeManagerProvider;
+	private readonly INodeDataProvider _nodeDataProvider;
+
 	internal readonly RequiredSetOnce<AnalysisSetNodeResources> AnalysisSetNodeResourcesBacking = new();
 	internal AnalysisSetNodeResources AnalysisSetNodeResources => AnalysisSetNodeResourcesBacking.Value;
 
@@ -24,7 +26,16 @@ public class NodeResource : INodeResource
 	public ImageSource? Icon => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Icon;
 
 	public IGeometricRegion? Region =>
-		(_nodeInfoProvider.Resolve(Id).ThrowIfUnresolved() as IGeometricRoiNodeInfo)?.Region;
+		(_nodeInfoProvider.Resolve(Id) as IGeometricRoiNodeInfo)?.Region;
+
+	public INodeResource TopLevelNode
+	{
+		get
+		{
+			var rootNodeId = _nodeInfoProvider.GetRootNodeContainer(Id).NodeId;
+			return AnalysisSetNodeResources.GetOrCreate(rootNodeId);
+		}
+	}
 
 	public INodeResource? Parent =>
 		_nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Parent is { } parentId
@@ -36,7 +47,7 @@ public class NodeResource : INodeResource
 			.Select(x => AnalysisSetNodeResources.GetOrCreate(x))
 			.ToList();
 
-	public IMassSpectrumRangeManager RangeManager => _massSpectrumRangeManagerProvider.Resolve(Id).ThrowIfUnresolved();
+	public IMassSpectrumRangeManager? RangeManager => _massSpectrumRangeManagerProvider.Resolve(Id);
 
 	public IExportToCsv? ExportToCsv => _exportToCsvProvider.Resolve(Id);
 
@@ -54,15 +65,32 @@ public class NodeResource : INodeResource
 
 	public IIonData? GetValidIonData() => _ionDataProvider.GetResolvedOwnerIonData(Id);
 
+	public IEnumerable<Type> ProvidedDataTypes => _nodeDataProvider.Resolve(Id)?.DataTypes ?? Enumerable.Empty<Type>();
+
+	public T? GetData<T>(IProgress<double>? progress = null, CancellationToken cancellationToken = default) where T : class
+	{
+		return _nodeDataProvider.Resolve(Id)?.GetDataSync(typeof(T)) as T;
+	}
+	public async Task<T?> GetDataAsync<T>(IProgress<double>? progress = null, CancellationToken cancellationToken = default) where T : class
+	{
+		if (_nodeDataProvider.Resolve(Id) is { } dataProvider)
+		{
+			return (await dataProvider.GetData(typeof(T), progress, cancellationToken)) as T;
+		}
+		return default(T);
+	}
+
 	public NodeResource(
 		INodeInfoProvider nodeInfoProvider,
 		IExportToCsvProvider exportToCsvProvider,
 		IIonDataProvider ionDataProvider,
-		IMassSpectrumRangeManagerProvider massSpectrumRangeManagerProvider)
+		IMassSpectrumRangeManagerProvider massSpectrumRangeManagerProvider,
+		INodeDataProvider nodeDataProvider)
 	{
 		_nodeInfoProvider = nodeInfoProvider;
 		_exportToCsvProvider = exportToCsvProvider;
 		_ionDataProvider = ionDataProvider;
 		_massSpectrumRangeManagerProvider = massSpectrumRangeManagerProvider;
+		_nodeDataProvider = nodeDataProvider;
 	}
 }

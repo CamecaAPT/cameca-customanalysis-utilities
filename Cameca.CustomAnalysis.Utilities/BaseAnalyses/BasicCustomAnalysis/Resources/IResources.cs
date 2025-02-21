@@ -35,7 +35,6 @@ public interface IResources : INodeResource
 	string AnalysisSetTitle { get; }
 	INodeResource? SelectedNode { get; }
 	IViewBuilder ViewBuilder { get; }
-	INodeResource TopLevelNode { get; }
 	IEventAggregator Events { get; }
 	IChart3D MainChart { get; }
 	IRenderDataFactory ChartObjects { get; }
@@ -45,7 +44,6 @@ public interface IResources : INodeResource
 	INodeDataState DataState { get; }
 	ICanSaveState CanSaveState { get; }
 	Color GetIonColor(IIonTypeInfo ionTypeInfo);
-	IEnumerable<INodeResource> AnalysisTreeNodes();
 	IDialogService Dialog { get; }
 	IExperimentInfo? ExperimentInfo { get; }
 	void RefreshExperimentInfo();

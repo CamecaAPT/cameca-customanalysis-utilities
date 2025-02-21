@@ -49,14 +49,6 @@ public class BasicAnalysisResources : NodeResource, IResources
 		}
 	}
 	public IViewBuilder ViewBuilder { get; }
-	public INodeResource TopLevelNode
-	{
-		get
-		{
-			var rootNodeId = _nodeInfoProvider.GetRootNodeContainer(Id).NodeId;
-			return AnalysisSetNodeResources.GetOrCreate(rootNodeId);
-		}
-	}
 	public IEventAggregator Events { get; }
 	public IChart3D MainChart => _mainChartProvider.Resolve(Id).ThrowIfUnresolved();
 	public IRenderDataFactory ChartObjects { get; }
@@ -72,15 +64,6 @@ public class BasicAnalysisResources : NodeResource, IResources
 
 	public Color GetIonColor(IIonTypeInfo ionTypeInfo) =>
 		_ionDisplayInfoProvider.Resolve(Id).ThrowIfUnresolved().GetColor(ionTypeInfo);
-
-	public IEnumerable<INodeResource> AnalysisTreeNodes()
-	{
-		var rootId = TopLevelNode.Id;
-		foreach (var id in _nodeInfoProvider.IterateNodeContainers(rootId).Select(x => x.NodeId))
-		{
-			yield return AnalysisSetNodeResources.GetOrCreate(id);
-		}
-	}
 
 	public BasicAnalysisResources(
 		IDialogService dialogService,
@@ -102,8 +85,9 @@ public class BasicAnalysisResources : NodeResource, IResources
 		IRenderDataFactory renderDataFactory,
 		IViewBuilder viewBuilder,
 		IProgressDialogProvider progressDialogProvider,
-		IExperimentInfoProvider experimentInfoProvider)
-		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider)
+		IExperimentInfoProvider experimentInfoProvider,
+		INodeDataProvider nodeDataProvider)
+		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider, nodeDataProvider)
 	{
 		_mainChartProvider = mainChartProvider;
 		_nodeVisibilityControlProvider = nodeVisibilityControlProvider;
