@@ -43,11 +43,13 @@ public interface IResources : INodeResource
 	INodeMenuFactory MenuFactory { get; }
 	INodeDataState DataState { get; }
 	ICanSaveState CanSaveState { get; }
-	Color GetIonColor(IIonTypeInfo ionTypeInfo);
+	IIonDisplayInfo IonDisplayInfo { get; }
 	IDialogService Dialog { get; }
 	IExperimentInfo? ExperimentInfo { get; }
 	void RefreshExperimentInfo();
 	string? ExperimentFileName { get; }
+	IElementDataSetService ElementDataService { get; }
+	IIonFormulaIsotopeCalculator FormulaIsotopeCalculator { get; }
 
 
 	/// <inheritdoc cref="IonDataExtensions.EnsureSectionsAvailable"/>

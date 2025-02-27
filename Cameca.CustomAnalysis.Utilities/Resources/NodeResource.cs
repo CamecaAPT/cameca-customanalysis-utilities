@@ -15,7 +15,8 @@ public class NodeResource : INodeResource
 	private readonly IIonDataProvider _ionDataProvider;
 	private readonly IMassSpectrumRangeManagerProvider _massSpectrumRangeManagerProvider;
 	private readonly INodeDataProvider _nodeDataProvider;
-
+	private readonly IElementDataSetService _elementDataSetService;
+	private readonly INodeElementDataSetProvider _nodeElementDataSetProvider;
 	internal readonly RequiredSetOnce<AnalysisSetNodeResources> AnalysisSetNodeResourcesBacking = new();
 	internal AnalysisSetNodeResources AnalysisSetNodeResources => AnalysisSetNodeResourcesBacking.Value;
 
@@ -47,7 +48,7 @@ public class NodeResource : INodeResource
 			.Select(x => AnalysisSetNodeResources.GetOrCreate(x))
 			.ToList();
 
-	public IMassSpectrumRangeManager? RangeManager => _massSpectrumRangeManagerProvider.Resolve(Id);
+	public IMassSpectrumRangeManager? RangeManager => _massSpectrumRangeManagerProvider.Resolve(IonDataOwnerNode.Id);
 
 	public IExportToCsv? ExportToCsv => _exportToCsvProvider.Resolve(Id);
 
@@ -67,6 +68,18 @@ public class NodeResource : INodeResource
 
 	public IEnumerable<Type> ProvidedDataTypes => _nodeDataProvider.Resolve(Id)?.DataTypes ?? Enumerable.Empty<Type>();
 
+	public IElementDataSet? ElementData
+	{
+		get
+		{
+			if (_nodeElementDataSetProvider.Resolve(Id) is { ElementDataSetId: int elementDataSetId })
+			{
+				return _elementDataSetService.GetElementDataSet(elementDataSetId);
+			}
+			return null;
+		}
+	}
+
 	public T? GetData<T>(IProgress<double>? progress = null, CancellationToken cancellationToken = default) where T : class
 	{
 		return _nodeDataProvider.Resolve(Id)?.GetDataSync(typeof(T)) as T;
@@ -85,12 +98,16 @@ public class NodeResource : INodeResource
 		IExportToCsvProvider exportToCsvProvider,
 		IIonDataProvider ionDataProvider,
 		IMassSpectrumRangeManagerProvider massSpectrumRangeManagerProvider,
-		INodeDataProvider nodeDataProvider)
+		INodeDataProvider nodeDataProvider,
+		IElementDataSetService elementDataSetService,
+		INodeElementDataSetProvider nodeElementDataSetProvider)
 	{
 		_nodeInfoProvider = nodeInfoProvider;
 		_exportToCsvProvider = exportToCsvProvider;
 		_ionDataProvider = ionDataProvider;
 		_massSpectrumRangeManagerProvider = massSpectrumRangeManagerProvider;
 		_nodeDataProvider = nodeDataProvider;
+		_elementDataSetService = elementDataSetService;
+		_nodeElementDataSetProvider = nodeElementDataSetProvider;
 	}
 }

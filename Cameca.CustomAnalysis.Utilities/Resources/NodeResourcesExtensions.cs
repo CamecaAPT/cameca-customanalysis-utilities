@@ -15,13 +15,12 @@ public static class NodeResourcesExtensions
 	{
 		if (nodeResource.IonDataOwnerNode is { } dataOwnerNode)
 		{
-
 			foreach (var node in dataOwnerNode.Children)
 			{
 
 				if (node.TypeId == "MassSpectrumNode")
 				{
-					return nodeResource;
+					return node;
 				}
 			}
 		}
@@ -39,7 +38,7 @@ public static class NodeResourcesExtensions
 				{
 					if (node.TypeId == "GridNode")
 					{
-						return nodeResource;
+						return node;
 					}
 				}
 			}
