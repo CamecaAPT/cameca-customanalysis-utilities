@@ -34,10 +34,9 @@ public interface IAnalysis<in TProperties>
 		TProperties properties,
 		IResources resources,
 		IProgress<double>? progress,
-		CancellationToken cancellationToken);
+		CancellationToken cancellationToken) => Array.Empty<ReadOnlyMemory<ulong>>();
 	
-	Task<object?> Update(
-		IIonData ionData,
+	Task<bool> Update(
 		TProperties properties,
 		IResources resources,
 		IProgress<double>? progress,

@@ -34,7 +34,6 @@ public interface IResources : INodeResource
 {
 	string AnalysisSetTitle { get; }
 	INodeResource? SelectedNode { get; }
-	IViewBuilder ViewBuilder { get; }
 	IEventAggregator Events { get; }
 	IChart3D MainChart { get; }
 	IRenderDataFactory ChartObjects { get; }
