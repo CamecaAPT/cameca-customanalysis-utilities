@@ -1,28 +1,31 @@
 ﻿using Cameca.CustomAnalysis.Interface;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class AnalysisFilterNodeBase : AnalysisFilterNodeBase<IAnalysisFilterNodeBaseServices>
+public abstract class AnalysisFilterNodeBase<TProperties> : AnalysisFilterNodeBase<TProperties, IAnalysisFilterNodeBaseServices>
+	where TProperties : INotifyPropertyChanged, new()
 {
-	protected AnalysisFilterNodeBase(IAnalysisFilterNodeBaseServices services) : base(services) { }
+	protected AnalysisFilterNodeBase(IAnalysisFilterNodeBaseServices services, ResourceFactory resourceFactory) : base(services, resourceFactory) { }
 }
 
 [NodeType(NodeType.DataFilter)]
-public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServices>
+public abstract class AnalysisFilterNodeBase<TProperties, TServices> : AnalysisNodeBase<TProperties, TServices>
 	where TServices : IAnalysisFilterNodeBaseServices
+	where TProperties : INotifyPropertyChanged, new()
 {
-	protected AnalysisFilterNodeBase(TServices services) : base(services)
+	protected AnalysisFilterNodeBase(TServices services, ResourceFactory resourceFactory) : base(services, resourceFactory)
 	{
 	}
 
 	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnCreatedCore(eventArgs);
-		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+		if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegateAsync;
 		}
@@ -36,10 +39,10 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 
 	protected string? FilterProgressMessage
 	{
-		get => Services.DataFilterProvider.Resolve(InstanceId)?.FilterProgressMessage;
+		get => Services.DataFilterProvider.Resolve(Id)?.FilterProgressMessage;
 		set
 		{
-			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 			{
 				dataFilterInterceptor.FilterProgressMessage = value;
 			}
@@ -48,14 +51,20 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 
 	protected bool FilterIsInverted
 	{
-		get => Services.DataFilterProvider.Resolve(InstanceId)?.IsInverted ?? false;
+		get => Services.DataFilterProvider.Resolve(Id)?.IsInverted ?? false;
 		set
 		{
-			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 			{
 				dataFilterInterceptor.IsInverted = value;
 			}
 		}
+	}
+
+	protected override void OnPropertiesChanged(PropertyChangedEventArgs e)
+	{
+		base.OnPropertiesChanged(e);
+		FilterDataChanged();
 	}
 
 #pragma warning disable CS1998
@@ -73,5 +82,5 @@ public abstract class AnalysisFilterNodeBase<TServices> : AnalysisNodeBase<TServ
 		yield return ReadOnlyMemory<ulong>.Empty;
 	}
 
-	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(InstanceId)?.FilterDataChanged();
+	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(Id)?.FilterDataChanged();
 }
