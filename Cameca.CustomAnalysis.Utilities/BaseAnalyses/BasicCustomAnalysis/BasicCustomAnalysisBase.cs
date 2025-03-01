@@ -20,6 +20,12 @@ public abstract class BasicCustomAnalysisBase<TProperties> : StandardAnalysisFil
 		PropertyChanged += AbstractNode_PropertyChanged;
 	}
 
+	protected override void OnAdded(NodeAddedEventArgs eventArgs)
+	{
+		base.OnAdded(eventArgs);
+		DataStateIsValid = false;
+	}
+
 	private void AbstractNode_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 	{
 		if (e.PropertyName == nameof(UpdateCommandCanExecute))
