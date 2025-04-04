@@ -48,7 +48,7 @@ public class NodeResource : INodeResource
 			.Select(x => AnalysisSetNodeResources.GetOrCreate(x))
 			.ToList();
 
-	public IMassSpectrumRangeManager? RangeManager => _massSpectrumRangeManagerProvider.Resolve(IonDataOwnerNode.Id);
+	public IMassSpectrumRangeManager? RangeManager => _massSpectrumRangeManagerProvider.Resolve(Id);
 
 	public IExportToCsv? ExportToCsv => _exportToCsvProvider.Resolve(Id);
 
