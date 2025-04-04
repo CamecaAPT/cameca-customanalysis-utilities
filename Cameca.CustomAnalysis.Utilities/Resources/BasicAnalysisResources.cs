@@ -25,6 +25,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 	private readonly IExperimentInfoProvider _experimentInfoProvider;
 	private readonly IElementDataSetService _elementDataSetService;
 	private readonly IIonFormulaIsotopeCalculator _ionFormulaIsotopeCalculator;
+	private readonly IOptionsAccessor _optionsAccessor;
 
 	public string AnalysisSetTitle => _analysisSetInfoProvider.Resolve(Id).ThrowIfUnresolved().Title;
 
@@ -65,6 +66,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 	public IIonDisplayInfo IonDisplayInfo => _ionDisplayInfoProvider.Resolve(Id).ThrowIfUnresolved();
 	public IElementDataSetService ElementDataService => _elementDataSetService;
 	public IIonFormulaIsotopeCalculator FormulaIsotopeCalculator => _ionFormulaIsotopeCalculator;
+	public IOptionsAccessor Options => _optionsAccessor;
 
 	public BasicAnalysisResources(
 		IDialogService dialogService,
@@ -90,7 +92,8 @@ public class BasicAnalysisResources : NodeResource, IResources
 		INodeDataProvider nodeDataProvider,
 		IElementDataSetService elementDataSetService,
 		INodeElementDataSetProvider nodeElementDataSetProvider,
-		IIonFormulaIsotopeCalculator ionFormulaIsotopeCalculator)
+		IIonFormulaIsotopeCalculator ionFormulaIsotopeCalculator,
+		IOptionsAccessor optionsAccessor)
 		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider, nodeDataProvider, elementDataSetService, nodeElementDataSetProvider)
 	{
 		_mainChartProvider = mainChartProvider;
@@ -106,6 +109,7 @@ public class BasicAnalysisResources : NodeResource, IResources
 		_experimentInfoProvider = experimentInfoProvider;
 		_elementDataSetService = elementDataSetService;
 		_ionFormulaIsotopeCalculator = ionFormulaIsotopeCalculator;
+		_optionsAccessor = optionsAccessor;
 		Dialog = dialogService;
 		ColorMap = colorMapFactory;
 		ChartObjects = renderDataFactory;

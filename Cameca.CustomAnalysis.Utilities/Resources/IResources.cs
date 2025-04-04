@@ -49,6 +49,7 @@ public interface IResources : INodeResource
 	string? ExperimentFileName { get; }
 	IElementDataSetService ElementDataService { get; }
 	IIonFormulaIsotopeCalculator FormulaIsotopeCalculator { get; }
+	IOptionsAccessor Options { get; }
 
 
 	/// <inheritdoc cref="IonDataExtensions.EnsureSectionsAvailable"/>
