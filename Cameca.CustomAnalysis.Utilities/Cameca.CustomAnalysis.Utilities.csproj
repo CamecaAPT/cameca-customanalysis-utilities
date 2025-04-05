@@ -26,8 +26,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="3.6.0-beta.1" />
-		<PackageReference Include="Cameca.Extensions.Controls" Version="1.2.1" />
+		<PackageReference Include="Cameca.CustomAnalysis.Interface" Version="3.7.0" />
+		<PackageReference Include="Cameca.Extensions.Controls" Version="1.3.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="Prism.Wpf" Version="8.1.97" />
