@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
@@ -22,10 +24,16 @@ public static class IonDataExtensions
 	/// <returns></returns>
 	public static IEnumerable<IChunkState> CreateSectionDataEnumerable(this IIonData ionData, params string[] sections)
 	{
-		var enumerator = ionData.CreateSectionDataEnumerator(sections);
+		using var enumerator = ionData.CreateSectionDataEnumerator(sections);
 		while (enumerator.MoveNext())
 		{
-			yield return enumerator.Current;
+			// Intended to simplify foreach loops, where we likely don't want to keep references beyond the loop.
+			// Therefore this utility will managed disposing the object for the caller.
+			// If a need exists for an enumerable that does not dispose on enumeration, that can be added seperately
+			using (enumerator.Current)
+			{
+				yield return enumerator.Current;
+			}
 		}
 	}
 
@@ -59,17 +67,17 @@ public static class IonDataExtensions
 		return ionDataProvider.GetResolvedIonData(rootNodeId);
 	}
 
-    private static Guid GetRootIonDataNodeId(IIonDataProvider ionDataProvider, Guid nodeId)
-    {
-        Guid nodeIdPtr = nodeId;
-        Guid? ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
-        while (ownerNodeId.HasValue && ownerNodeId.Value != Guid.Empty)
-        {
-            nodeIdPtr = ownerNodeId.Value;
-            ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
-        }
-        return nodeIdPtr;
-    }
+	private static Guid GetRootIonDataNodeId(IIonDataProvider ionDataProvider, Guid nodeId)
+	{
+		Guid nodeIdPtr = nodeId;
+		Guid? ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
+		while (ownerNodeId.HasValue && ownerNodeId.Value != Guid.Empty)
+		{
+			nodeIdPtr = ownerNodeId.Value;
+			ownerNodeId = ionDataProvider.Resolve(nodeIdPtr)?.OwnerNodeId;
+		}
+		return nodeIdPtr;
+	}
 	#endregion
 
 	/// <summary>
@@ -133,8 +141,162 @@ public static class IonDataExtensions
 
 		// Add recalculated sections as virtual data sections. This only should return false at this point for
 		// exceptional circumstances (file corruption, etc)
-		return await reconstructionSections.AddVirtualSections(missingSections, progress, cancellationToken);
+		return await reconstructionSections.AddSections(missingSections, false, progress, cancellationToken);
 	}
+
+	/// <summary>
+	/// Reads the section data and copies it to the provided buffer.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="ionData"></param>
+	/// <param name="sectionName"></param>
+	/// <param name="buffer"></param>
+	/// <returns>The number of records of type {T} read from the section</returns>
+	/// <exception cref="ArgumentException"><paramref name="buffer"/> is not large enough to store the section data</exception>
+	public static int CopySectionToBuffer<T>(this IIonData ionData, string sectionName, Span<T> buffer) where T : unmanaged
+	{
+		if (!ionData.Sections.TryGetValue(sectionName, out var sectionInfo))
+			return 0;
+
+		ulong totalBytesCeil = GetTotalSectionBytes(sectionInfo);
+		ulong bufferTotalBytes = (ulong)Marshal.SizeOf<T>() * (ulong)buffer.Length;
+		if (totalBytesCeil > bufferTotalBytes) throw new ArgumentException($"Buffer is not large enough to hold the section data. Section requies a buffer of length {totalBytesCeil}", nameof(buffer));
+
+		int offset = 0;  // If offset would go beyond int.MaxValue, then we have have already thrown as buffer.Length caps at int.MaxValue
+		foreach (var chunk in ionData.CreateSectionDataEnumerable(sectionName))
+		{
+			var sectionData = chunk.ReadSectionData<T>(sectionName);
+			sectionData.Span.CopyTo(buffer.Slice(offset, sectionData.Length));
+			offset += chunk.Length;
+		}
+		return offset;
+	}
+
+	public static T[] ReadSectionToArray<T>(this IIonData ionData, string sectionName) where T : unmanaged
+	{
+		if (!ionData.Sections.TryGetValue(sectionName, out var sectionInfo))
+			return Array.Empty<T>();
+
+		ulong totalBytesCeil = GetTotalSectionBytes(sectionInfo);
+		int bufferLength = (int)(totalBytesCeil / (ulong)Marshal.SizeOf<T>());
+		var buffer = new T[bufferLength];
+		ionData.CopySectionToBuffer<T>(sectionName, buffer);
+		return buffer;
+	}
+
+	public static string? ReadStringSection(this IIonData ionData, string sectionName)
+	{
+		if (!ionData.Sections.TryGetValue(sectionName, out var sectionInfo))
+			return null;
+
+		if (sectionInfo.Type != typeof(string))
+			return null;
+
+		ulong totalBytesCeil = GetTotalSectionBytes(sectionInfo);
+		int bufferLength = (int)totalBytesCeil;
+		var buffer = new byte[bufferLength];
+		ionData.CopySectionToBuffer<byte>(sectionName, buffer);
+		return sectionInfo.DataTypeSizeBits == 16
+			? Encoding.Unicode.GetString(buffer)
+			: Encoding.UTF8.GetString(buffer);
+	}
+
+	public static bool WriteSection<T>(this IIonData ionData, string sectionName, T[] data) where T : unmanaged
+		=> WriteSection<T>(ionData, sectionName, (ReadOnlyMemory<T>)data);
+
+	public static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlyMemory<T> data) where T : unmanaged
+	{
+		if (!ionData.Sections.ContainsKey(sectionName))
+			return false;
+
+		int offset = 0; // We should never get farther than writing to int.MaxValue
+		int dataLength = data.Length;
+		int dataOffset = 0;
+		int dataRemaining = dataLength;
+		foreach (var chunk in ionData.CreateSectionDataEnumerable(sectionName))
+		{
+			var sliceLength = Math.Min(chunk.Length, dataRemaining);
+			dataRemaining -= sliceLength;
+			var slice = data.Slice(dataOffset, sliceLength);
+			dataOffset += sliceLength;
+			chunk.WriteSectionData(sectionName, slice);
+			offset += chunk.Length;
+			// We have iterated past the data length, so nothing more to write
+			if (offset > dataOffset)
+				break;
+		}
+		return true;
+	}
+
+	public static T? ReadJsonSection<T>(this IIonData ionData, string sectionName, JsonSerializerOptions? options = null) where T : class
+	{
+		if (ReadStringSection(ionData, sectionName) is { } serialized)
+		{
+			return JsonSerializer.Deserialize<T>(serialized, options);
+		}
+		return default;
+	}
+
+	public static bool WriteJsonSection<T>(this IIonData ionData, string sectionName, T value, JsonSerializerOptions? options = null) where T : class
+	{
+		string serialized = JsonSerializer.Serialize(value, options);
+		return WriteStringSection(ionData, sectionName, serialized);
+	}
+
+	public static bool WriteStringSection(this IIonData ionData, string sectionName, string content)
+	{
+
+		if (!ionData.Sections.TryGetValue(sectionName, out var sectionInfo))
+		{
+			return false;
+		}
+		if (!(sectionInfo.Type is null || sectionInfo.Type.Equals(typeof(string))))
+		{
+			throw new ArgumentException($"Section {sectionName} is not a string section", nameof(sectionName));
+		}
+		
+		if (sectionInfo.DataTypeSizeBits != 8 && sectionInfo.DataTypeSizeBits != 16)
+		{
+			throw new ArgumentException($"Section {sectionName} DataTypeSizeBits = {sectionInfo.DataTypeSizeBits}, which is not a supported string encoding length", nameof(sectionName));
+		}
+		var encoding = sectionInfo.DataTypeSizeBits == 16 ? Encoding.Unicode : Encoding.UTF8;
+		ReadOnlyMemory<byte> data = encoding.GetBytes(content);
+		int sectionLength = data.Length * 8 / (int)sectionInfo.DataTypeSizeBits;
+
+		var replacementSectionContext = AddSectionContext.CreateString(sectionName, encoding, sectionLength, sectionInfo.Unit, sectionInfo.IsVirtual);
+		if (!ionData.DeleteSection(sectionName))
+		{
+			throw new InvalidOperationException($"Failed to delete section {sectionName}");
+		}
+		ionData.AddSection(replacementSectionContext);
+
+		int offset = 0; // We should never get farther than writing to int.MaxValue
+		int dataLength = data.Length;
+		int dataOffset = 0;
+		int dataRemaining = dataLength;
+		foreach (var chunk in ionData.CreateSectionDataEnumerable(sectionName))
+		{
+			var sliceLength = Math.Min(chunk.Length, dataRemaining);
+			dataRemaining -= sliceLength;
+			var slice = data.Slice(dataOffset, sliceLength);
+			dataOffset += sliceLength;
+			chunk.WriteSectionData(sectionName, slice);
+			offset += chunk.Length;
+			// We have iterated past the data length, so nothing more to write
+			if (offset > dataOffset)
+				break;
+		}
+		return true;
+	}
+
+	private static ulong GetTotalSectionBytes(ISectionInfo sectionInfo)
+	{
+		// https://stackoverflow.com/a/503201
+		var recordBits = sectionInfo.DataTypeSizeBits * sectionInfo.ValuesPerRecord * sectionInfo.RecordCount;
+		ulong totalBytesCeil = recordBits > 0 ? (recordBits - 1L) / 8L + 1L : 0L;
+		return totalBytesCeil;
+	}
+
 
 	#region Buffers I/O
 	/// <summary>
@@ -150,7 +312,7 @@ public static class IonDataExtensions
 	/// <param name="ionData"></param>
 	/// <param name="sectionName"></param>
 	/// <returns></returns>
-	public static ReadOnlySequence<T> ReadSection<T>(this IIonData ionData, string sectionName) where T : unmanaged
+	internal static ReadOnlySequence<T> ReadSection<T>(this IIonData ionData, string sectionName) where T : unmanaged
 	{
 		// Does not exist
 		if (!ionData.Sections.ContainsKey(sectionName))
@@ -176,7 +338,7 @@ public static class IonDataExtensions
 	/// <param name="sectionDefinition"></param>
 	/// <returns></returns>
 	/// <exception cref="InvalidOperationException"></exception>
-	public static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlySequence<T> data, IonDataSectionDefinition? sectionDefinition = null)
+	internal static bool WriteSection<T>(this IIonData ionData, string sectionName, ReadOnlySequence<T> data, IonDataSectionDefinition? sectionDefinition = null)
 		where T : unmanaged
 	{
 		// If not already exists, create section
@@ -184,11 +346,15 @@ public static class IonDataExtensions
 		{
 			if (sectionDefinition is null)
 				throw new InvalidOperationException($"Section does not exist and {nameof(sectionDefinition)} is null");
-			ionData.AddVirtualSection(
+			int size = Marshal.SizeOf<T>();
+			ionData.AddSection(
 				sectionDefinition.Name,
 				sectionDefinition.Type,
+				(ulong)data.Length,
+				(uint)(size * 8),
 				sectionDefinition.Unit,
-				sectionDefinition.ValuePerRecord);
+				sectionDefinition.ValuePerRecord,
+				isVirtual: !ionData.CanWrite);
 		}
 
 		long chunkOffset = 0L;
@@ -232,7 +398,7 @@ public static class IonDataExtensions
 	/// <exception cref="InvalidOperationException">Section does not currently exist in and no section definition was given</exception>
 	/// <exception cref="InvalidOperationException">Stream size was not the expected length required to write the full ion data section</exception>
 	/// <exception cref="ArgumentException">Input stream was not readable</exception>
-	public static void WriteStreamToSection<T>(this IIonData ionData, string sectionName, Stream stream, IonDataSectionDefinition? sectionDefinition = null) where T : unmanaged
+	internal static void WriteStreamToSection<T>(this IIonData ionData, string sectionName, Stream stream, IonDataSectionDefinition? sectionDefinition = null) where T : unmanaged
 	{
 		if (!stream.CanRead) throw new ArgumentException("Stream must be readable", nameof(stream));
 
@@ -259,7 +425,7 @@ public static class IonDataExtensions
 	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
 	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
 	/// </remarks>
-	public static void WriteStreamToSection(this IIonData ionData, string sectionName, Type type, Stream stream, IonDataSectionDefinition? sectionDefinition = null)
+	internal static void WriteStreamToSection(this IIonData ionData, string sectionName, Type type, Stream stream, IonDataSectionDefinition? sectionDefinition = null)
 	{
 		MethodInfo methodInfo;
 		try
@@ -284,7 +450,7 @@ public static class IonDataExtensions
 	/// <param name="sectionName"></param>
 	/// <param name="stream"></param>
 	/// <exception cref="ArgumentException">Stream is not writable</exception>
-	public static void WriteSectionToStream<T>(this IIonData ionData, string sectionName, Stream stream) where T : unmanaged
+	internal static void WriteSectionToStream<T>(this IIonData ionData, string sectionName, Stream stream) where T : unmanaged
 	{
 		if (!stream.CanWrite) throw new ArgumentException("Stream must be writable", nameof(stream));
 		var sequence = ionData.ReadSection<T>(sectionName);
@@ -302,7 +468,7 @@ public static class IonDataExtensions
 	/// accomplished with a generic type constraint. Using reflection to create a generic method of the given
 	/// type will throw an ArgumentNullException if the runtime type does not match the required type constraint.
 	/// </remarks>
-	public static void WriteSectionToStream(this IIonData ionData, string sectionName, Type type, Stream stream)
+	internal static void WriteSectionToStream(this IIonData ionData, string sectionName, Type type, Stream stream)
 	{
 		MethodInfo methodInfo;
 		try
@@ -319,4 +485,54 @@ public static class IonDataExtensions
 		methodInfo.Invoke(null, new object?[] { ionData, sectionName, stream });
 	}
 	#endregion
+
+	public static void AddSection(this IIonData ionData, AddSectionContext addContext)
+	{
+		ionData.AddSection(
+			addContext.Name,
+			addContext.Type!,  // TODO: Do NOT leave as is. Update interface and AP Suite for nullability. We are lying here
+			addContext.RecordCount,
+			addContext.DataTypeBits,
+			addContext.Unit,
+			addContext.ValuesPerRecord,
+			addContext.IsVirtual);
+	}
+
+	public static void AddSection<T>(this IIonData ionData, string name) where T : unmanaged
+	{
+		//AddSection(ionData, AddSectionContext.CreateFixed(name));
+		AddSection(ionData, AddSectionContext.CreateOneToOne<T>(name));
+	}
+
+	public static void AddStringSection(this IIonData ionData, string name)
+	{
+		AddSection(ionData, AddSectionContext.CreateString(name, 0));
+	}
+
+	public static bool AddSectionIfNotExists<T>(this IIonData ionData, AddSectionContext addContext)
+	{
+		if (ionData.Sections.ContainsKey(addContext.Name))
+			return false;
+
+		AddSection(ionData, addContext);
+		return true;
+	}
+
+	public static bool AddSectionIfNotExists<T>(this IIonData ionData, string name) where T : unmanaged
+	{
+		if (ionData.Sections.ContainsKey(name))
+			return false;
+
+		AddSection(ionData, AddSectionContext.CreateOneToOne<T>(name));
+		return true;
+	}
+
+	public static bool AddStringSectionIfNotExists(this IIonData ionData, string name)
+	{
+		if (ionData.Sections.ContainsKey(name))
+			return false;
+
+		AddStringSection(ionData, name);
+		return true;
+	}
 }

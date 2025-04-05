@@ -7,19 +7,19 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public abstract class DataFilterNodeBase : DataFilterNodeBase<IDataFilterNodeBaseServices>
 {
-	protected DataFilterNodeBase(IDataFilterNodeBaseServices services) : base(services) { }
+	protected DataFilterNodeBase(IDataFilterNodeBaseServices services, ResourceFactory resourceFactory) : base(services, resourceFactory) { }
 }
 
 [NodeType(NodeType.DataFilter)]
 public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 	where TServices : IDataFilterNodeBaseServices
 {
-	protected DataFilterNodeBase(TServices services) : base(services) { }
+	protected DataFilterNodeBase(TServices services, ResourceFactory resourceFactory) : base(services, resourceFactory) { }
 
 	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnCreatedCore(eventArgs);
-		if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+		if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 		{
 			dataFilterInterceptor.FilterDelegate = GetIndicesDelegate;
 		}
@@ -33,10 +33,10 @@ public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 
 	protected string? FilterProgressMessage
 	{
-		get => Services.DataFilterProvider.Resolve(InstanceId)?.FilterProgressMessage;
+		get => Services.DataFilterProvider.Resolve(Id)?.FilterProgressMessage;
 		set
 		{
-			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 			{
 				dataFilterInterceptor.FilterProgressMessage = value;
 			}
@@ -45,10 +45,10 @@ public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 
 	protected bool FilterIsInverted
 	{
-		get => Services.DataFilterProvider.Resolve(InstanceId)?.IsInverted ?? false;
+		get => Services.DataFilterProvider.Resolve(Id)?.IsInverted ?? false;
 		set
 		{
-			if (Services.DataFilterProvider.Resolve(InstanceId) is { } dataFilterInterceptor)
+			if (Services.DataFilterProvider.Resolve(Id) is { } dataFilterInterceptor)
 			{
 				dataFilterInterceptor.IsInverted = value;
 			}
@@ -58,5 +58,5 @@ public abstract class DataFilterNodeBase<TServices> : CoreNodeBase<TServices>
 
 	protected abstract IAsyncEnumerable<ReadOnlyMemory<ulong>> GetIndicesDelegate(IIonData ownerIonData, IProgress<double>? progress, CancellationToken token);
 
-	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(InstanceId)?.FilterDataChanged();
+	protected void FilterDataChanged() => Services.DataFilterProvider.Resolve(Id)?.FilterDataChanged();
 }

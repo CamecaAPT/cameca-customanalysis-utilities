@@ -1,8 +1,12 @@
 ﻿using System;
+using Cameca.CustomAnalysis.Interface;
 using Cameca.CustomAnalysis.Utilities;
 using Cameca.CustomAnalysis.Utilities.Controls;
+using Cameca.CustomAnalysis.Utilities.ExtensionMethods;
 using Cameca.CustomAnalysis.Utilities.Legacy;
+using Prism.Events;
 using Prism.Ioc;
+using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -53,6 +57,7 @@ public static class PrismIocExtensions
 		// Apply registrations of configured options
 		if (registerCoreBaseClasses)
 		{
+			RegisterBasicAnalysis(containerRegistry);
 			containerRegistry.Register<ICoreServices, CoreServices>();
 			containerRegistry.Register<ICoreNodeServices, CoreNodeServices>();
 			containerRegistry.Register<IAnalysisNodeBaseServices, AnalysisNodeBaseServices>();
@@ -89,9 +94,11 @@ public static class PrismIocExtensions
 
 	public static void RegisterBasicAnalysis(this IContainerRegistry containerRegistry)
 	{
-		containerRegistry.Register<NodeResource>();
-		containerRegistry.Register<AnalysisSetNodeResources>();
-		containerRegistry.Register<IResources, BasicAnalysisResources>();
-		containerRegistry.Register<ResourceFactory>();
+		containerRegistry.EnsureRegistered<NodeResource>();
+		containerRegistry.EnsureRegistered<AnalysisSetNodeResources>();
+		containerRegistry.EnsureRegistered<IResources, BasicAnalysisResources>();
+		containerRegistry.EnsureRegistered<ResourceFactory>();
+		// Ensure all inner dependencies to create these objects are registered
+		containerRegistry.EnsureRegistered<IViewBuilder, ViewBuilder>();
 	}
 }

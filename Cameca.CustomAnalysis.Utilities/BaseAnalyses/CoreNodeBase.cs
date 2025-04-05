@@ -5,12 +5,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cameca.CustomAnalysis.Interface;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Prism.Events;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class CoreNodeBase<TServices> : IDisposable where TServices : ICoreNodeServices
+public abstract class CoreNodeBase<TServices> : ObservableObject, IDisposable where TServices : ICoreNodeServices
 {
+	private readonly ResourceFactory resourceFactory;
+
 	public INodeDataState? DataState { get; private set; }
 	public ICanSaveState? CanSaveState { get; private set; }
 
@@ -36,15 +39,23 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 
 	protected TServices Services { get; }
 
-	protected Guid InstanceId => Services.IdProvider.Get(this);
+	private Lazy<IResources> _lazyResources;
+	public IResources Resources => _lazyResources.Value;
+
+	public Guid Id => Services.IdProvider.Get(this);
+
+	[Obsolete("Use Id property instead")]
+	protected Guid InstanceId => Id;
 
 	protected IDisposableCollection<SubscriptionToken> ManagedSubscriptions { get; }
 
 	protected virtual IEnumerable<IMenuItem> ContextMenuItems => Enumerable.Empty<IMenuItem>();
 
-	protected CoreNodeBase(TServices services)
+	protected CoreNodeBase(TServices services, ResourceFactory resourceFactory)
 	{
 		Services = services;
+		this.resourceFactory = resourceFactory;
+		_lazyResources = new Lazy<IResources>(() => this.resourceFactory.CreateResource(Id));
 		ManagedSubscriptions = new DisposableList<SubscriptionToken>();
 		
 		// Register events
@@ -86,18 +97,18 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 
 	internal virtual void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
-		if (Services.NodePersistenceProvider.Resolve(InstanceId) is { } saveInterceptor)
+		if (Services.NodePersistenceProvider.Resolve(Id) is { } saveInterceptor)
 		{
 			saveInterceptor.SaveDelegate = GetSaveContent;
 			saveInterceptor.SavePreviewDelegate = GetPreviewSaveContent;
 		}
-		CanSaveState = Services.CanSaveStateProvider.Resolve(InstanceId);
-		DataState = Services.DataStateProvider.Resolve(InstanceId);
+		CanSaveState = Services.CanSaveStateProvider.Resolve(Id);
+		DataState = Services.DataStateProvider.Resolve(Id);
 		if (DataState is not null)
 		{
 			DataState.PropertyChanged += DataStateOnPropertyChangedRouter;
 		}
-		if (Services.MenuFactoryProvider.Resolve(InstanceId) is { } menuFactory)
+		if (Services.MenuFactoryProvider.Resolve(Id) is { } menuFactory)
 		{
 			menuFactory.ContextMenuItems = ContextMenuItems;
 		}
@@ -123,7 +134,7 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 	}
 
 	protected Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default)
-		=> Services.IonDataProvider.GetIonData(InstanceId, progress, cancellationToken);
+		=> Services.IonDataProvider.GetIonData(Id, progress, cancellationToken);
 
 	protected virtual byte[]? GetSaveContent() => null;
 
@@ -141,8 +152,8 @@ public abstract class CoreNodeBase<TServices> : IDisposable where TServices : IC
 
 	protected virtual void OnDataErrorStateChanged(bool isErrorState) { }
 
-	protected virtual bool InstanceIdFilter(INodeTargetEvent targetEventArgs)
-		=> targetEventArgs.NodeId == InstanceId;
+	protected bool InstanceIdFilter(INodeTargetEvent targetEventArgs)
+		=> targetEventArgs.NodeId == Id;
 
 	protected virtual void Dispose(bool disposing)
 	{

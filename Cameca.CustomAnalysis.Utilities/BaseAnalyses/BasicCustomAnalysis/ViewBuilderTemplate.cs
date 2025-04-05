@@ -36,79 +36,38 @@ public class ViewBuilderTemplate : UserControl
 		},
 	};
 
-	private static Grid BuildContent() => new Grid
+	private static object BuildContent() => new TabControl
 	{
-		ColumnDefinitions =
+		Resources = new ResourceDictionary
 		{
-			new ColumnDefinition { Width = GridLength.Auto, MinWidth = 200, },
-			new ColumnDefinition { Width = GridLength.Auto, },
-			new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), },
-		},
-		Children =
-		{
-			new Grid
+			[new DataTemplateKey(typeof(Chart3DTabViewModel))] = new DataTemplate(typeof(Chart3DTabViewModel))
 			{
-				RowDefinitions =
-				{
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = new GridLength(1, GridUnitType.Star), },
-				},
-				Children =
-				{
-					new Button { Content = RunButtonContent }
-						.SetGridRow(0)
-						.SetBindingEx(ButtonBase.CommandProperty, LegacyCustomAnalysisViewModelRunCommand),
-					// new PropertyGrid
-					// {
-					// 	ShowCategories = false,
-					// 	ShowEditorButtons = false,
-					// 	ShowToolPanel = false,
-					// 	ShowSearchBox = false,
-					// 	ExpandButtonsVisibility = Visibility.Visible,
-					// 	ExpandCategoriesWhenSelectedObjectChanged = true,
-					// }.SetGridRow(1)
-					// 	.SetBindingEx(PropertyGrid.SelectedObjectProperty, LegacyCustomAnalysisViewModelOptions),
-				},
-			}.SetGridColumn(0),
-			new GridSplitter
-			{
-				HorizontalAlignment = HorizontalAlignment.Center,
-				VerticalAlignment = VerticalAlignment.Stretch,
-				ShowsPreview = true,
-				Width = 5,
-			}.SetGridColumn(1),
-			new TabControl
-				{
-					Resources = new ResourceDictionary
-					{
-						[new DataTemplateKey(typeof(Chart3DTabViewModel))] = new DataTemplate(typeof(Chart3DTabViewModel))
-						{
-							VisualTree = new FrameworkElementFactory(typeof(Chart3D))
+				VisualTree = new FrameworkElementFactory(typeof(Chart3D))
 								.SetBindingFefExt(Chart3D.DataSourceProperty, new Binding(nameof(Chart3DTabViewModel.RenderData))),
-						}.SealFrameworkTemplate(),
-						[new DataTemplateKey(typeof(Chart2DTabViewModel))] = new DataTemplate(typeof(Chart2DTabViewModel))
-						{
-							VisualTree = new FrameworkElementFactory(typeof(Chart2D))
+			}.SealFrameworkTemplate(),
+			[new DataTemplateKey(typeof(Chart2DTabViewModel))] = new DataTemplate(typeof(Chart2DTabViewModel))
+			{
+				VisualTree = new FrameworkElementFactory(typeof(Chart2D))
 								.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Chart2DTabViewModel.RenderData)))
 								.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Chart2DTabViewModel.XAxis)))
 								.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Chart2DTabViewModel.YAxis))),
-						}.SealFrameworkTemplate(),
-						[new DataTemplateKey(typeof(Histogram2DTabViewModel))] = new DataTemplate(typeof(Histogram2DTabViewModel))
-						{
-							VisualTree = new FrameworkElementFactory(typeof(Histogram2D))
+			}.SealFrameworkTemplate(),
+			[new DataTemplateKey(typeof(Histogram2DTabViewModel))] = new DataTemplate(typeof(Histogram2DTabViewModel))
+			{
+				VisualTree = new FrameworkElementFactory(typeof(Histogram2D))
 								.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Histogram2DTabViewModel.RenderData)))
 								.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Histogram2DTabViewModel.XAxis)))
 								.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Histogram2DTabViewModel.YAxis))),
-						}.SealFrameworkTemplate(),
-						[new DataTemplateKey(typeof(TableTabViewModel))] = new DataTemplate(typeof(TableTabViewModel))
-						{
-							VisualTree = new FrameworkElementFactory(typeof(Table))
+			}.SealFrameworkTemplate(),
+			[new DataTemplateKey(typeof(TableTabViewModel))] = new DataTemplate(typeof(TableTabViewModel))
+			{
+				VisualTree = new FrameworkElementFactory(typeof(Table))
 								.SetBindingFefExt(Table.ItemsSourceProperty, new Binding(nameof(TableTabViewModel.Items)))
 								.SetValueFefExt(Table.AutoWidthProperty, true),
-						}.SealFrameworkTemplate(),
-						[new DataTemplateKey(typeof(TextTabViewModel))] = new DataTemplate(typeof(TextTabViewModel))
-						{
-							VisualTree = new FrameworkElementFactory(typeof(TextBox))
+			}.SealFrameworkTemplate(),
+			[new DataTemplateKey(typeof(TextTabViewModel))] = new DataTemplate(typeof(TextTabViewModel))
+			{
+				VisualTree = new FrameworkElementFactory(typeof(TextBox))
 								.SetBindingFefExt(TextBox.TextProperty, new Binding(nameof(TextTabViewModel.Content)) { Mode = BindingMode.OneTime })
 								.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Stretch)
 								.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Stretch)
@@ -119,11 +78,9 @@ public class ViewBuilderTemplate : UserControl
 								.SetBindingFefExt(TextBox.TextWrappingProperty, new Binding(nameof(TextTabViewModel.TextWrapping)) { Mode = BindingMode.OneTime })
 								.SetBindingFefExt(FontFamilyProperty, new Binding(nameof(TextTabViewModel.FontFamily)) { Mode = BindingMode.OneTime })
 								.SetBindingFefExt(FontSizeProperty, new Binding(nameof(TextTabViewModel.FontSize)) { Mode = BindingMode.OneTime }),
-						}.SealFrameworkTemplate(),
-					},
-				}.SetGridColumn(2)
-				.SetBindingEx(ItemsControl.ItemsSourceProperty, LegacyCustomAnalysisViewModelTabs)
-				.SetBindingEx(Selector.SelectedItemProperty, LegacyCustomAnalysisViewModelSelectedTab),
-		}
-	};
+			}.SealFrameworkTemplate(),
+		},
+	}
+	.SetBindingEx(ItemsControl.ItemsSourceProperty, LegacyCustomAnalysisViewModelTabs)
+	.SetBindingEx(Selector.SelectedItemProperty, LegacyCustomAnalysisViewModelSelectedTab);
 }

@@ -2,26 +2,28 @@
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Prism.Commands;
 using System;
+using System.ComponentModel;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
-public abstract class StandardAnalysisFilterNodeBase : StandardAnalysisFilterNodeBase<IStandardAnalysisFilterNodeBaseServices>
+public abstract class StandardAnalysisFilterNodeBase<TProperties> : StandardAnalysisFilterNodeBase<TProperties, IStandardAnalysisFilterNodeBaseServices>
+	where TProperties : INotifyPropertyChanged, new()
 {
-	protected StandardAnalysisFilterNodeBase(IStandardAnalysisFilterNodeBaseServices services) : base(services) { }
-
+	protected StandardAnalysisFilterNodeBase(IStandardAnalysisFilterNodeBaseServices services, ResourceFactory resourceFactory) : base(services, resourceFactory) { }
 }
 
-public abstract class StandardAnalysisFilterNodeBase<TServices> : AnalysisFilterNodeBase<TServices>
+public abstract class StandardAnalysisFilterNodeBase<TProperties, TServices> : AnalysisFilterNodeBase<TProperties, TServices>
+	where TProperties : INotifyPropertyChanged, new()
 	where TServices : IStandardAnalysisFilterNodeBaseServices
 {
-	protected StandardAnalysisFilterNodeBase(TServices services) : base(services)
+	protected StandardAnalysisFilterNodeBase(TServices services, ResourceFactory resourceFactory) : base(services, resourceFactory)
 	{
 	}
 
 	internal override void OnCreatedCore(NodeCreatedEventArgs eventArgs)
 	{
 		base.OnCreatedCore(eventArgs);
-		if (Services.NodeMenuFactoryProvider.Resolve(InstanceId) is { } nodeMenuFactory)
+		if (Services.NodeMenuFactoryProvider.Resolve(Id) is { } nodeMenuFactory)
 		{
 			nodeMenuFactory.ContextMenuItems = new[]
 			{
@@ -35,21 +37,12 @@ public abstract class StandardAnalysisFilterNodeBase<TServices> : AnalysisFilter
 		var renameParameters = new EditNameDialogParameters
 		{
 			Title = "Rename",
-			Name = Services.NodeInfoProvider.Resolve(InstanceId)?.Name,
+			Name = Services.NodeInfoProvider.Resolve(Id)?.Name,
 			Validate = x => !string.IsNullOrWhiteSpace(x),
 		};
 		if (Services.DialogService.TryShowEditNameDialog(out string newName, renameParameters))
 		{
-			Services.EventAggregator.PublishRenameNode(InstanceId, newName);
+			Services.EventAggregator.PublishRenameNode(Id, newName);
 		}
 	}
-
-	protected sealed override bool InstanceIdFilter(INodeTargetEvent targetEventArgs)
-		=> base.InstanceIdFilter(targetEventArgs);
-
-	protected sealed override bool MatchExistingViewPredicate(Type targetType, object viewModel)
-		=> base.MatchExistingViewPredicate(targetType, viewModel);
-
-	protected sealed override void RequestDisplayViews()
-		=> base.RequestDisplayViews();
 }

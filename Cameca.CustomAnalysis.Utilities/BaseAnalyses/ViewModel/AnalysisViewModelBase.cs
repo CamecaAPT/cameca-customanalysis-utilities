@@ -5,7 +5,7 @@ namespace Cameca.CustomAnalysis.Utilities;
 public abstract class AnalysisViewModelBase<TNode> : CoreViewModelBase<IAnalysisViewModelBaseServices> where TNode : class
 {
 	private RequiredSetOnce<TNode> _node = new();
-	protected TNode Node => _node;
+	public TNode Node => _node;
 
 	protected AnalysisViewModelBase(IAnalysisViewModelBaseServices services) : base(services) { }
 

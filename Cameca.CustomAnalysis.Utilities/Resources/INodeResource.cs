@@ -15,11 +15,16 @@ public interface INodeResource
 	string TypeId { get; }
 	ImageSource? Icon { get; }
 	IGeometricRegion? Region { get; }
+	INodeResource TopLevelNode { get; }
 	INodeResource? Parent { get; }
 	IEnumerable<INodeResource> Children { get; }
-	IMassSpectrumRangeManager RangeManager { get; }
+	IMassSpectrumRangeManager? RangeManager { get; }
 	IExportToCsv? ExportToCsv { get; }
 	INodeResource IonDataOwnerNode { get; }
 	Task<IIonData?> GetIonData(IProgress<double>? progress = null, CancellationToken cancellationToken = default);
 	IIonData? GetValidIonData();
+	IEnumerable<Type> ProvidedDataTypes { get; }
+	IElementDataSet? ElementData { get; }
+	T? GetData<T>(IProgress<double>? progress = null, CancellationToken cancellationToken = default) where T : class;
+	Task<T?> GetDataAsync<T>(IProgress<double>? progress = null, CancellationToken cancellationToken = default) where T : class;
 }

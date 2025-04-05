@@ -23,7 +23,9 @@ public class BasicAnalysisResources : NodeResource, IResources
 	private readonly IReconstructionSectionsProvider _reconstructionSectionsProvider;
 	private readonly IProgressDialogProvider _progressDialogProvider;
 	private readonly IExperimentInfoProvider _experimentInfoProvider;
-
+	private readonly IElementDataSetService _elementDataSetService;
+	private readonly IIonFormulaIsotopeCalculator _ionFormulaIsotopeCalculator;
+	private readonly IOptionsAccessor _optionsAccessor;
 
 	public string AnalysisSetTitle => _analysisSetInfoProvider.Resolve(Id).ThrowIfUnresolved().Title;
 
@@ -49,14 +51,6 @@ public class BasicAnalysisResources : NodeResource, IResources
 		}
 	}
 	public IViewBuilder ViewBuilder { get; }
-	public INodeResource TopLevelNode
-	{
-		get
-		{
-			var rootNodeId = _nodeInfoProvider.GetRootNodeContainer(Id).NodeId;
-			return AnalysisSetNodeResources.GetOrCreate(rootNodeId);
-		}
-	}
 	public IEventAggregator Events { get; }
 	public IChart3D MainChart => _mainChartProvider.Resolve(Id).ThrowIfUnresolved();
 	public IRenderDataFactory ChartObjects { get; }
@@ -69,18 +63,10 @@ public class BasicAnalysisResources : NodeResource, IResources
 	public INodeDataState DataState => _nodeDataStateProvider.Resolve(Id).ThrowIfUnresolved();
 	public ICanSaveState CanSaveState => _canSaveStateProvider.Resolve(Id).ThrowIfUnresolved();
 	public IProgressDialog Progress => _progressDialogProvider.Resolve(Id).ThrowIfUnresolved();
-
-	public Color GetIonColor(IIonTypeInfo ionTypeInfo) =>
-		_ionDisplayInfoProvider.Resolve(Id).ThrowIfUnresolved().GetColor(ionTypeInfo);
-
-	public IEnumerable<INodeResource> AnalysisTreeNodes()
-	{
-		var rootId = TopLevelNode.Id;
-		foreach (var id in _nodeInfoProvider.IterateNodeContainers(rootId).Select(x => x.NodeId))
-		{
-			yield return AnalysisSetNodeResources.GetOrCreate(id);
-		}
-	}
+	public IIonDisplayInfo IonDisplayInfo => _ionDisplayInfoProvider.Resolve(Id).ThrowIfUnresolved();
+	public IElementDataSetService ElementDataService => _elementDataSetService;
+	public IIonFormulaIsotopeCalculator FormulaIsotopeCalculator => _ionFormulaIsotopeCalculator;
+	public IOptionsAccessor Options => _optionsAccessor;
 
 	public BasicAnalysisResources(
 		IDialogService dialogService,
@@ -102,8 +88,13 @@ public class BasicAnalysisResources : NodeResource, IResources
 		IRenderDataFactory renderDataFactory,
 		IViewBuilder viewBuilder,
 		IProgressDialogProvider progressDialogProvider,
-		IExperimentInfoProvider experimentInfoProvider)
-		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider)
+		IExperimentInfoProvider experimentInfoProvider,
+		INodeDataProvider nodeDataProvider,
+		IElementDataSetService elementDataSetService,
+		INodeElementDataSetProvider nodeElementDataSetProvider,
+		IIonFormulaIsotopeCalculator ionFormulaIsotopeCalculator,
+		IOptionsAccessor optionsAccessor)
+		: base(nodeInfoProvider, exportToCsvProvider, ionDataProvider, massSpectrumRangeManagerProvider, nodeDataProvider, elementDataSetService, nodeElementDataSetProvider)
 	{
 		_mainChartProvider = mainChartProvider;
 		_nodeVisibilityControlProvider = nodeVisibilityControlProvider;
@@ -116,6 +107,9 @@ public class BasicAnalysisResources : NodeResource, IResources
 		_reconstructionSectionsProvider = reconstructionSectionsProvider;
 		_progressDialogProvider = progressDialogProvider;
 		_experimentInfoProvider = experimentInfoProvider;
+		_elementDataSetService = elementDataSetService;
+		_ionFormulaIsotopeCalculator = ionFormulaIsotopeCalculator;
+		_optionsAccessor = optionsAccessor;
 		Dialog = dialogService;
 		ColorMap = colorMapFactory;
 		ChartObjects = renderDataFactory;

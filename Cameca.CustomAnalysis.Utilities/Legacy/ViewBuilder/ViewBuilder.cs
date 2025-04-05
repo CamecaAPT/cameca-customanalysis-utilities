@@ -97,6 +97,7 @@ internal class ViewBuilder : IViewBuilder
 					break;
 			}
 		}
+		_tabViewModelDefinitions.Clear();
 	}
 
 	private IRenderData BuildRenderData(object definition)

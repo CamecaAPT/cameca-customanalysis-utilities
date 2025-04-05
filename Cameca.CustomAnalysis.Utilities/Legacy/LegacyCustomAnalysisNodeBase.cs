@@ -7,7 +7,7 @@ using Cameca.CustomAnalysis.Interface;
 
 namespace Cameca.CustomAnalysis.Utilities.Legacy;
 
-public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : StandardAnalysisNodeBase
+public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : StandardAnalysisNodeBase<TOptions>
 	where TAnalysis : ICustomAnalysis<TOptions>
 	where TOptions : INotifyPropertyChanged, new()
 {
@@ -15,7 +15,7 @@ public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : Standa
 
 	protected readonly TAnalysis Analysis;
 
-	protected LegacyCustomAnalysisNodeBase(IStandardAnalysisNodeBaseServices services, TAnalysis analysis) : base(services)
+	protected LegacyCustomAnalysisNodeBase(IStandardAnalysisNodeBaseServices services, TAnalysis analysis, ResourceFactory resourceFactory) : base(services, resourceFactory)
 	{
 		Analysis = analysis;
 	}
@@ -24,7 +24,7 @@ public abstract class LegacyCustomAnalysisNodeBase<TAnalysis, TOptions> : Standa
 	public virtual async Task Run(IViewBuilder viewBuilder)
 	{
 		// Get or create ion data
-		if (await Services.IonDataProvider.GetIonData(InstanceId) is not { } ionData) return;
+		if (await Services.IonDataProvider.GetIonData(Id) is not { } ionData) return;
 		Analysis.Run(ionData, Options, viewBuilder);
 	}
 
