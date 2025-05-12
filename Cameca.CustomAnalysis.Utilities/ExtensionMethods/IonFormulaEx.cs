@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -129,5 +127,30 @@ public static class IonFormulaEx
 				sb.Append(count);
 			}
 		}
+	}
+
+	/// <summary>
+	/// Calculate the atomic volume of the <see cref="IonFormula"/>
+	/// </summary>
+	/// <remarks>
+	/// Computes the sum of the atomic volume of each component atom in the formula using the given element data set.
+	/// If any symbol in the formula can not be resolved to an instance of <see cref="IElement"/>,
+	/// then the atomic volume for that component will be zero.
+	/// </remarks>
+	/// <param name="ionFormula"></param>
+	/// <param name="elementDataSet"></param>
+	/// <returns>Sum of the atomic volume of each component atom in <paramref name="ionFormula"/>, or <c>0d</c> if <paramref name="elementDataSet"/> is <c>null</c></returns>
+	public static double CalculateAtomicVolume(this IonFormula ionFormula, IElementDataSet? elementDataSet)
+	{
+		double totalVolume = 0d;
+		if (elementDataSet is not null)
+		{
+			foreach (var (symbol, count) in ionFormula)
+			{
+				var volume = elementDataSet.Elements.FirstOrDefault(x => x.Symbol == symbol)?.AtomicVolume() ?? 0;
+				totalVolume = volume * count;
+			}
+		}
+		return totalVolume;
 	}
 }
