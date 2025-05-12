@@ -10,14 +10,14 @@ public sealed class Chart2DSlice : BindableBase, IChart2DSlice
 	public float Min
 	{
 		get => _min;
-		set => SetProperty(ref _min, value);
+		private set => SetProperty(ref _min, value);
 	}
 	
 	private float _max;
 	public float Max
 	{
 		get => _max;
-		set => SetProperty(ref _max, value);
+		private set => SetProperty(ref _max, value);
 	}
 
 	private Color _color;
@@ -32,6 +32,20 @@ public sealed class Chart2DSlice : BindableBase, IChart2DSlice
 	{
 		get => _isSelected;
 		set => SetProperty(ref _isSelected, value);
+	}
+
+	public void SetBounds(float min, float max)
+	{
+		if (min < max)
+		{
+			Min = min;
+			Max = max;
+		}
+		else
+		{
+			Max = min;
+			Min = max;
+		}
 	}
 
 	public Chart2DSlice(float min, float max, Color color, bool isSelected = false)
