@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Windows.Media;
 using Cameca.CustomAnalysis.Interface;
@@ -92,6 +93,26 @@ public static class RenderDataFactoryExtensions
 	{
 		var renderData = renderDataFactory.CreateLine();
 		renderData.Positions = points;
+		renderData.Color = color;
+		if (thickness.HasValue)
+			renderData.Thickness = thickness.Value;
+		if (name is not null)
+			renderData.Name = name;
+		renderData.IsVisible = isVisible;
+		return renderData;
+	}
+
+	public static ILineRenderData CreateLine(
+		this IRenderDataFactory renderDataFactory,
+		IEnumerable<Vector2> points,
+		Color color = default,
+		float? thickness = null,
+		float depth = 0f,
+		string? name = null,
+		bool isVisible = true)
+	{
+		var renderData = renderDataFactory.CreateLine();
+		renderData.Positions = points.Select(p => new Vector3(p.X, depth, p.Y)).ToArray();
 		renderData.Color = color;
 		if (thickness.HasValue)
 			renderData.Thickness = thickness.Value;
@@ -195,6 +216,34 @@ public static class RenderDataFactoryExtensions
 	{
 		var renderData = renderDataFactory.CreateSeries();
 		renderData.Positions = points;
+		renderData.Color = color;
+		renderData.MarkerColor = color;
+		if (thickness.HasValue)
+			renderData.Thickness = thickness.Value;
+		renderData.MarkerShape = markerShape;
+		renderData.LineStyle = lineStyle;
+		if (markerSize.HasValue)
+			renderData.MarkerSize = markerSize.Value;
+		if (name is not null)
+			renderData.Name = name;
+		renderData.IsVisible = isVisible;
+		return renderData;
+	}
+
+	public static ISeriesRenderData CreateSeries(
+		this IRenderDataFactory renderDataFactory,
+		IEnumerable<Vector2> points,
+		Color color = default,
+		float? thickness = null,
+		MarkerShape markerShape = MarkerShape.Circle,
+		LineStyle lineStyle = LineStyle.Solid,
+		int? markerSize = null,
+		float depth = 0f,
+		string? name = null,
+		bool isVisible = true)
+	{
+		var renderData = renderDataFactory.CreateSeries();
+		renderData.Positions = points.Select(x => new Vector3(x.X, depth, x.Y)).ToArray();
 		renderData.Color = color;
 		renderData.MarkerColor = color;
 		if (thickness.HasValue)
