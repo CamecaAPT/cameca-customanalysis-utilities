@@ -94,7 +94,7 @@ public class LegacyCustomAnalysisView : UserControl
 					}.SealFrameworkTemplate(),
 					[new DataTemplateKey(typeof(Histogram2DTabViewModel))] = new DataTemplate(typeof(Histogram2DTabViewModel))
 					{
-						VisualTree = new FrameworkElementFactory(typeof(Histogram2D))
+						VisualTree = new FrameworkElementFactory(typeof(Chart2D))
 							.SetBindingFefExt(Chart2D.DataSourceProperty, new Binding(nameof(Histogram2DTabViewModel.RenderData)))
 							.SetBindingFefExt(Chart2D.AxisXLabelProperty, new Binding(nameof(Histogram2DTabViewModel.XAxis)))
 							.SetBindingFefExt(Chart2D.AxisYLabelProperty, new Binding(nameof(Histogram2DTabViewModel.YAxis))),

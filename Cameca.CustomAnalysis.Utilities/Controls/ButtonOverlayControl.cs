@@ -4,11 +4,16 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using System;
+using System.Globalization;
 
 namespace Cameca.CustomAnalysis.Utilities.Controls;
 
 public class ButtonOverlayControl : ContentControl
 {
+	public const string ButtonContentDefault = "Update";
+	public const string CancelButtonContentDefault = "Cancel";
+
 	public static readonly DependencyProperty OverlayVisibilityProperty = DependencyProperty.Register(
 		nameof(OverlayVisibility), typeof(Visibility), typeof(ButtonOverlayControl), new FrameworkPropertyMetadata(default(Visibility)));
 
@@ -28,7 +33,7 @@ public class ButtonOverlayControl : ContentControl
 	}
 
 	public static readonly DependencyProperty ButtonContentProperty = DependencyProperty.Register(
-		nameof(ButtonContent), typeof(object), typeof(ButtonOverlayControl), new FrameworkPropertyMetadata(default(object?)));
+		nameof(ButtonContent), typeof(object), typeof(ButtonOverlayControl), new FrameworkPropertyMetadata(ButtonContentDefault));
 
 	public object? ButtonContent
 	{
@@ -36,38 +41,126 @@ public class ButtonOverlayControl : ContentControl
 		set => SetValue(ButtonContentProperty, value);
 	}
 
-	public ButtonOverlayControl()
+	public static readonly DependencyProperty CancelButtonCommandProperty = DependencyProperty.Register(
+		nameof(CancelButtonCommand), typeof(ICommand), typeof(ButtonOverlayControl), new PropertyMetadata(default(ICommand), propertyChangedCallback: OnPropertyChanged));
+
+	private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 	{
-		Template = BuildControlTemplate(this);
+		System.Diagnostics.Debug.WriteLine(e.NewValue);
 	}
 
-	private static ControlTemplate BuildControlTemplate(object bindingSource)
+	public ICommand CancelButtonCommand
 	{
+		get => (ICommand)GetValue(CancelButtonCommandProperty);
+		set => SetValue(CancelButtonCommandProperty, value);
+	}
+
+	public static readonly DependencyProperty CancelButtonContentProperty = DependencyProperty.Register(
+		nameof(CancelButtonContent), typeof(object), typeof(ButtonOverlayControl), new FrameworkPropertyMetadata(CancelButtonContentDefault));
+
+	public object? CancelButtonContent
+	{
+		get => (object?)GetValue(CancelButtonContentProperty);
+		set => SetValue(CancelButtonContentProperty, value);
+	}
+
+	public ButtonOverlayControl()
+	{
+		Template = BuildControlTemplate();
+	}
+
+	private static ControlTemplate BuildControlTemplate()
+	{
+		var multiConverter = new OptionalCommandVisiblityConverter();
+		var visibilityConverter = new BooleanToVisibilityConverter();
 		return new ControlTemplate(typeof(ButtonOverlayControl))
 		{
 			VisualTree = new FrameworkElementFactory(typeof(Grid))
 				.AppendChildFefExt(new FrameworkElementFactory(typeof(ContentPresenter))
-					.SetValueFefExt(ContentPresenter.ContentProperty, new TemplateBindingExtension(ButtonOverlayControl.ContentProperty)))
+					.SetValueFefExt(ContentPresenter.ContentProperty, new TemplateBindingExtension(ContentProperty)))
 				.AppendChildFefExt(new FrameworkElementFactory(typeof(Grid))
-					.SetBindingFefExt(Grid.VisibilityProperty, new Binding
+					.SetBindingFefExt(VisibilityProperty, new Binding
 					{
-						Source = bindingSource,
+						RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ButtonOverlayControl), 1),
 						Path = new PropertyPath(nameof(OverlayVisibility)),
 					})
 					.SetValueFefExt(Panel.ZIndexProperty, int.MaxValue)
 					.AppendChildFefExt(new FrameworkElementFactory(typeof(Grid))
-						.SetValueFefExt(Grid.OpacityProperty, 0.8d)
+						.SetValueFefExt(OpacityProperty, 0.8d)
 						.SetValueFefExt(Panel.BackgroundProperty, new SolidColorBrush(Colors.White)))
 					.AppendChildFefExt(new FrameworkElementFactory(typeof(Button))
-						.SetValueFefExt(Button.ContentProperty, new TemplateBindingExtension(ButtonOverlayControl.ButtonContentProperty))
-						.SetValueFefExt(Button.VerticalAlignmentProperty, VerticalAlignment.Center)
-						.SetValueFefExt(Button.HorizontalAlignmentProperty, HorizontalAlignment.Center)
-						.SetValueFefExt(Button.PaddingProperty, new Thickness(10d))
+						.SetValueFefExt(ContentProperty, new TemplateBindingExtension(ButtonContentProperty))
+						.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Center)
+						.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Center)
+						.SetValueFefExt(PaddingProperty, new Thickness(10d))
+						.SetBindingFefExt(VisibilityProperty, new MultiBinding
+						{
+							Converter = multiConverter,
+							Bindings =
+							{
+								new Binding
+								{
+									RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ButtonOverlayControl), 1),
+									Path = new PropertyPath(nameof(CancelButtonCommand)),
+								},
+								new Binding
+								{
+									RelativeSource = new RelativeSource(RelativeSourceMode.Self),
+									Path = new PropertyPath(nameof(IsEnabled)),
+								},
+							},
+						})
 						.SetBindingFefExt(ButtonBase.CommandProperty, new Binding
 						{
-							Source = bindingSource,
+							RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ButtonOverlayControl), 1),
 							Path = new PropertyPath(nameof(ButtonCommand)),
-						}))),
+						}))
+					.AppendChildFefExt(new FrameworkElementFactory(typeof(Button))
+						.SetValueFefExt(ContentProperty, new TemplateBindingExtension(CancelButtonContentProperty))
+						.SetValueFefExt(VerticalAlignmentProperty, VerticalAlignment.Center)
+						.SetValueFefExt(HorizontalAlignmentProperty, HorizontalAlignment.Center)
+						.SetValueFefExt(PaddingProperty, new Thickness(10d))
+						.SetBindingFefExt(VisibilityProperty, new MultiBinding
+						{
+							Converter = multiConverter,
+							Bindings =
+							{
+								new Binding
+								{
+									RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ButtonOverlayControl), 1),
+									Path = new PropertyPath(nameof(CancelButtonCommand)),
+								},
+								new Binding
+								{
+									RelativeSource = new RelativeSource(RelativeSourceMode.Self),
+									Path = new PropertyPath(nameof(IsEnabled)),
+								},
+							},
+							FallbackValue = Visibility.Collapsed,
+						})
+						.SetBindingFefExt(ButtonBase.CommandProperty, new Binding
+						{
+							RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ButtonOverlayControl), 1),
+							Path = new PropertyPath(nameof(CancelButtonCommand)),
+						}))
+					),
 		}.SealFrameworkTemplate();
+	}
+}
+
+internal class OptionalCommandVisiblityConverter : IMultiValueConverter
+{
+	public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+	{
+		if (values[0] is ICommand command)
+		{
+			return values[1] is bool enabled && enabled ? Visibility.Visible : Visibility.Collapsed;
+		}
+		return DependencyProperty.UnsetValue;
+	}
+
+	public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+	{
+		throw new NotImplementedException();
 	}
 }

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -13,22 +11,10 @@ public static class IonFormulaEx
 {
 	// Matches a single component in an ion formula. Does not validate if the component name group is an actual ion. A count of "1" is considered invalid, should be no value or 2 or greater
 	private static readonly Regex componentPattern = new Regex(@"(?<name>[A-Z][a-z]?)(?<count>[2-9]|[1-9][0-9]+)?");
-	// In an ideal world, this might be taken from the main AP Suite ion list, but that requires a substantial amount more overhead and realistically this will almost never change.
-	// It is much more understandable to simply replicate the valid ion type list here
-	private static readonly ISet<string> validIons = new HashSet<string>(new string[]
-	{
-		"H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg",
-		"Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr",
-		"Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
-		"Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd",
-		"Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La",
-		"Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er",
-		"Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au",
-		"Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th",
-		"Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md",
-		"No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn",
-		"Nh", "Fl", "Mc", "Lv", "Ts", "Og"
-	});
+
+	private static readonly ISet<string> validIons = new HashSet<string>(
+		Enum.GetValues<Element>().Select(x => x.ToString())
+	);
 
 	/// <summary>
 	/// Parse a formula string into a <see cref="IonFormula"/> instance
@@ -129,5 +115,30 @@ public static class IonFormulaEx
 				sb.Append(count);
 			}
 		}
+	}
+
+	/// <summary>
+	/// Calculate the atomic volume of the <see cref="IonFormula"/>
+	/// </summary>
+	/// <remarks>
+	/// Computes the sum of the atomic volume of each component atom in the formula using the given element data set.
+	/// If any symbol in the formula can not be resolved to an instance of <see cref="IElement"/>,
+	/// then the atomic volume for that component will be zero.
+	/// </remarks>
+	/// <param name="ionFormula"></param>
+	/// <param name="elementDataSet"></param>
+	/// <returns>Sum of the atomic volume of each component atom in <paramref name="ionFormula"/>, or <c>0d</c> if <paramref name="elementDataSet"/> is <c>null</c></returns>
+	public static double CalculateAtomicVolume(this IonFormula ionFormula, IElementDataSet? elementDataSet)
+	{
+		double totalVolume = 0d;
+		if (elementDataSet is not null)
+		{
+			foreach (var (symbol, count) in ionFormula)
+			{
+				var volume = elementDataSet.Elements.FirstOrDefault(x => x.Symbol == symbol)?.AtomicVolume() ?? 0;
+				totalVolume = volume * count;
+			}
+		}
+		return totalVolume;
 	}
 }
