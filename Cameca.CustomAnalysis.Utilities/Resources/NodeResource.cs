@@ -23,6 +23,7 @@ public class NodeResource : INodeResource
 	public Guid Id { get; internal set; }
 	public string Name => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Name;
 	public string Title => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Title;
+	public string DataSectionName => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().DataSectionName;
 	public string TypeId => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().TypeId;
 	public ImageSource? Icon => _nodeInfoProvider.Resolve(Id).ThrowIfUnresolved().Icon;
 

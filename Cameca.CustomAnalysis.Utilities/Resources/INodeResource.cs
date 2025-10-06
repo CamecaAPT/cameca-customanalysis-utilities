@@ -12,6 +12,7 @@ public interface INodeResource
 	Guid Id { get; }
 	string Name { get; }
 	string Title { get; }
+	string DataSectionName { get; }
 	string TypeId { get; }
 	ImageSource? Icon { get; }
 	IGeometricRegion? Region { get; }
