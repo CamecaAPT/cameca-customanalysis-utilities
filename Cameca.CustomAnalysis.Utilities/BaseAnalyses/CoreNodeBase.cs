@@ -37,7 +37,7 @@ public abstract class CoreNodeBase<TServices> : ObservableObject, IDisposable wh
 		}
 	}
 
-	protected TServices Services { get; }
+	public TServices Services { get; }
 
 	private Lazy<IResources> _lazyResources;
 	public IResources Resources => _lazyResources.Value;

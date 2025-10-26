@@ -14,6 +14,7 @@ internal class AnalysisFilterNodeBaseServices : IAnalysisFilterNodeBaseServices
 
 	public IEventAggregator EventAggregator => _analysisNodeBaseServices.EventAggregator;
 	public IIdProvider IdProvider => _analysisNodeBaseServices.IdProvider;
+	public IInstanceProvider InstanceProvider => _analysisNodeBaseServices.InstanceProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider => _analysisNodeBaseServices.MenuFactoryProvider;
 	public IIonDataProvider IonDataProvider => _analysisNodeBaseServices.IonDataProvider;
 	public INodeDataStateProvider DataStateProvider => _analysisNodeBaseServices.DataStateProvider;

@@ -5,7 +5,6 @@ namespace Cameca.CustomAnalysis.Utilities;
 
 public interface IAnalysisViewModelBaseServices : ICoreServices
 {
-	IInstanceProvider InstanceProvider { get; }
 }
 
 internal class AnalysisViewModelBaseServices : IAnalysisViewModelBaseServices
@@ -13,13 +12,10 @@ internal class AnalysisViewModelBaseServices : IAnalysisViewModelBaseServices
 	private readonly ICoreServices _coreServices;
 	public IEventAggregator EventAggregator => _coreServices.EventAggregator;
 	public IIdProvider IdProvider => _coreServices.IdProvider;
-	public IInstanceProvider InstanceProvider { get; }
+	public IInstanceProvider InstanceProvider => _coreServices.InstanceProvider;
 
-	public AnalysisViewModelBaseServices(
-		ICoreServices coreServices,
-		IInstanceProvider instanceProvider)
+	public AnalysisViewModelBaseServices(ICoreServices coreServices)
 	{
 		_coreServices = coreServices;
-		InstanceProvider = instanceProvider;
 	}
 }

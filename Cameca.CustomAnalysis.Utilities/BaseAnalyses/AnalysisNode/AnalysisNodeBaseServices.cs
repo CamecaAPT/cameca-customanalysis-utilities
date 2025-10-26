@@ -14,6 +14,7 @@ internal class AnalysisNodeBaseServices : IAnalysisNodeBaseServices
 
 	public IEventAggregator EventAggregator => _coreNodeServices.EventAggregator;
 	public IIdProvider IdProvider => _coreNodeServices.IdProvider;
+	public IInstanceProvider InstanceProvider => _coreNodeServices.InstanceProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider => _coreNodeServices.MenuFactoryProvider;
 	public IIonDataProvider IonDataProvider => _coreNodeServices.IonDataProvider;
 	public INodeDataStateProvider DataStateProvider => _coreNodeServices.DataStateProvider;

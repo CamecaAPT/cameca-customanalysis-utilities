@@ -17,6 +17,7 @@ internal class CoreNodeServices : ICoreNodeServices
 	private readonly ICoreServices _coreServices;
 	public IEventAggregator EventAggregator => _coreServices.EventAggregator;
 	public IIdProvider IdProvider => _coreServices.IdProvider;
+	public IInstanceProvider InstanceProvider => _coreServices.InstanceProvider;
 	public INodeMenuFactoryProvider MenuFactoryProvider { get; }
 	public IIonDataProvider IonDataProvider { get; }
 	public INodeDataStateProvider DataStateProvider { get; }
