@@ -17,7 +17,7 @@ public abstract class CoreNodeBase<TServices> : ObservableObject, IDisposable wh
 	public INodeDataState? DataState { get; private set; }
 	public ICanSaveState? CanSaveState { get; private set; }
 
-	protected bool DataStateIsValid
+	public bool DataStateIsValid
 	{
 		get => DataState?.IsValid ?? true;
 		set
@@ -27,7 +27,17 @@ public abstract class CoreNodeBase<TServices> : ObservableObject, IDisposable wh
 		}
 	}
 
-	protected bool CanSave
+	public bool DataStateIsError
+	{
+		get => DataState?.IsErrorState ?? true;
+		set
+		{
+			if (DataState is not null)
+				DataState.IsErrorState = value;
+		}
+	}
+
+	public bool CanSave
 	{
 		get => CanSaveState?.CanSave ?? false;
 		set
