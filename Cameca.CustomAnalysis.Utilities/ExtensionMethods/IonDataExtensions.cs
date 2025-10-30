@@ -535,4 +535,29 @@ public static class IonDataExtensions
 		AddStringSection(ionData, name);
 		return true;
 	}
+
+	/// <summary>
+	/// A filter that returns incrementing ulong indices for each ion, defining a filter that returns all ions
+	/// </summary>
+	/// <remarks>
+	/// Useful for creating analyses with child nodes, where all data must be passed through for child nodes to later filter.
+	/// </remarks>
+	/// <param name="ionData"></param>
+	/// <param name="progress"></param>
+	/// <param name="token"></param>
+	/// <returns></returns>
+	public static IEnumerable<ReadOnlyMemory<ulong>> AllowAllFilter(this IIonData ionData, IProgress<double>? progress, CancellationToken token)
+	{
+		ulong chunkOffset = 0ul;
+		foreach (var chunk in ionData.CreateSectionDataEnumerable())
+		{
+			using var buffer = MemoryOwner<ulong>.Allocate(chunk.Length);
+			for (int i = 0; i < chunk.Length; i++)
+			{
+				buffer.Span[i] = chunkOffset + (ulong)i;
+			}
+			yield return buffer.Memory;
+			chunkOffset += (ulong)chunk.Length;
+		}
+	}
 }
