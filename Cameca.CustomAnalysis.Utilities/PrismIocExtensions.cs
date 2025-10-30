@@ -4,6 +4,7 @@ using Cameca.CustomAnalysis.Utilities;
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Cameca.CustomAnalysis.Utilities.ExtensionMethods;
 using Cameca.CustomAnalysis.Utilities.Legacy;
+using Cameca.CustomAnalysis.Utilities.Segmentation;
 using Prism.Events;
 using Prism.Ioc;
 using Prism.Services.Dialogs;
@@ -100,5 +101,14 @@ public static class PrismIocExtensions
 		containerRegistry.EnsureRegistered<ResourceFactory>();
 		// Ensure all inner dependencies to create these objects are registered
 		containerRegistry.EnsureRegistered<IViewBuilder, ViewBuilder>();
+	}
+
+	/// <summary>
+	/// Registrations necessary to support use of <see cref="SegmentedRoiManager{TServices}" /> for creating segmented child nodes in a custom analysis
+	/// </summary>
+	/// <param name="containerRegistry"></param>
+	public static void RegisterSegmentedRoi(this IContainerRegistry containerRegistry)
+	{
+		containerRegistry.Register<object, SegmentedRoiNode>(SegmentedRoiNode.UniqueId);
 	}
 }
