@@ -33,5 +33,30 @@ public static class ResourcesExtensions
 		return new IonTypeInfoRange(name, formula, volume.Value, min, max, color.Value);
 	}
 
+	/// <summary>
+	///  Creates a child node and return the created node ID
+	/// </summary>
+	/// <param name="resources"></param>
+	/// <param name="analysisNodeName"></param>
+	/// <param name="parentNodeId"></param>
+	/// <param name="name"></param>
+	/// <param name="icon"></param>
+	/// <returns></returns>
+	public static Guid CreateChildNode(this IResources resources, string analysisNodeName, Guid parentNodeId, string? name = null, ImageSource? icon = null)
+	{
+		Guid? newNodeId = null;
+		void ReturnNewNodeId(NodeCreatedEventArgs e)
+		{
+			newNodeId = e.NodeId;
+		};
+		static bool CreateFilter(NodeCreatedEventArgs e) => e.Trigger == EventTrigger.Create;
+
+		using (var token = resources.Events.SubscribeNodeCreated(ReturnNewNodeId, CreateFilter))
+		{
+			resources.Events.PublishCreateNode(analysisNodeName, parentNodeId, name, icon);
+		}
+		return newNodeId.HasValue ? newNodeId.Value : throw new InvalidOperationException($"Could not create node of type \"{analysisNodeName}\". Ensure that this node type is registered in the IModule.RegisterTypes implementation. ");
+	}
+
 	private record ResourceIonTypeInfo(string Name, IonFormula Formula, double Volume) : IIonTypeInfo;
 }
