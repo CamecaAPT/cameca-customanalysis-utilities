@@ -1,13 +1,11 @@
 ﻿using System;
-using Cameca.CustomAnalysis.Interface;
-using Cameca.CustomAnalysis.Utilities;
+using System.Reflection;
 using Cameca.CustomAnalysis.Utilities.Controls;
 using Cameca.CustomAnalysis.Utilities.ExtensionMethods;
+using Cameca.CustomAnalysis.Utilities.Internal;
 using Cameca.CustomAnalysis.Utilities.Legacy;
 using Cameca.CustomAnalysis.Utilities.Segmentation;
-using Prism.Events;
 using Prism.Ioc;
-using Prism.Services.Dialogs;
 
 namespace Cameca.CustomAnalysis.Utilities;
 
@@ -109,6 +107,7 @@ public static class PrismIocExtensions
 	/// <param name="containerRegistry"></param>
 	public static void RegisterSegmentedRoi(this IContainerRegistry containerRegistry)
 	{
+		SegmentedRoiNode.UniqueId = Assembly.GetCallingAssembly().GetAclScopedUniqueId<SegmentedRoiNode>();
 		containerRegistry.Register<object, SegmentedRoiNode>(SegmentedRoiNode.UniqueId);
 	}
 }

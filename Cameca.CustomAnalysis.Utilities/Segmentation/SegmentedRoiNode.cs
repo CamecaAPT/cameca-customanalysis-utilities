@@ -9,9 +9,14 @@ namespace Cameca.CustomAnalysis.Utilities.Segmentation;
 /// <summary>
 ///  Data filter node used by <see cref="SegmentedRoiManager{TServices}" /> to filter segmented sets of ions from the parent analysis
 /// </summary>
-internal sealed class SegmentedRoiNode : AnalysisFilterNodeBase<SegmentedRoiProperties>
+public sealed class SegmentedRoiNode : AnalysisFilterNodeBase<SegmentedRoiProperties>
 {
-	public const string UniqueId = "Cameca.CustomAnalysis.Utilities.Segmentation.SegmentedRoiNode";
+	private static string? uniqueId = null;
+	public static string UniqueId
+	{
+		get => uniqueId ?? throw new InvalidOperationException("RegisterSegmentedRoi was not called in the extentension IModule.RegisterTypes method");
+		internal set => uniqueId = value;
+	}
 
 	/// <inheritdoc cref="SegmentedRoiNode" />
 	public SegmentedRoiNode(IAnalysisFilterNodeBaseServices services, ResourceFactory resourceFactory)

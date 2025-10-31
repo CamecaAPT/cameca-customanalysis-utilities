@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cameca.CustomAnalysis.Utilities.Segmentation;
@@ -12,6 +13,7 @@ public sealed class SegmentedRoiProperties : ObservableObject
 	/// <summary>
 	/// Value that the <see cref="SegmentedRoiNode" /> will filter the parent data section to
 	/// </summary>
-	[Display(AutoGenerateField = false)]
+	[Display(Name = "Filter Value")]
+	[ReadOnly(true)]
 	public byte FilterValue { get; set; }
 }
