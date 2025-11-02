@@ -1,6 +1,8 @@
 ﻿using Cameca.CustomAnalysis.Interface;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
 using System.Windows.Media;
 
 namespace Cameca.CustomAnalysis.Utilities;
@@ -53,7 +55,10 @@ public static class ResourcesExtensions
 
 		using (var token = resources.Events.SubscribeNodeCreated(ReturnNewNodeId, CreateFilter))
 		{
-			resources.Events.PublishCreateNode(analysisNodeName, parentNodeId, name, icon);
+			using (var _ = AssemblyLoadContext.EnterContextualReflection(Assembly.GetExecutingAssembly()))
+			{
+				resources.Events.PublishCreateNode(analysisNodeName, parentNodeId, name, icon);
+			}
 		}
 		return newNodeId.HasValue ? newNodeId.Value : throw new InvalidOperationException($"Could not create node of type \"{analysisNodeName}\". Ensure that this node type is registered in the IModule.RegisterTypes implementation. ");
 	}
