@@ -55,7 +55,9 @@ public static class ResourcesExtensions
 		{
 			resources.Events.PublishCreateNode(analysisNodeName, parentNodeId, name, icon);
 		}
-		return newNodeId.HasValue ? newNodeId.Value : throw new InvalidOperationException($"Could not create node of type \"{analysisNodeName}\". Ensure that this node type is registered in the IModule.RegisterTypes implementation. ");
+		return newNodeId.HasValue ?
+			newNodeId.Value
+			: throw new InvalidOperationException($"Could not create node of type \"{analysisNodeName}\". Ensure that this node type is registered in the IModule.RegisterTypes implementation and the parent node is of NodeType.DataFilter.");
 	}
 
 	private record ResourceIonTypeInfo(string Name, IonFormula Formula, double Volume) : IIonTypeInfo;
